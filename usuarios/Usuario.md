@@ -24,7 +24,7 @@ Gerenciar o cadastro, autenticação e controle de acesso dos usuários do siste
 
 - [ ] **Controle de Acesso (Permissões)**
   - Tipos de acesso:
-    - **Total**: Tatiana e Diretor.
+    - **Total**: Assessora Administrativa e Diretor.
     - **Moderado**: NTI.
     - **Visualização**: Coordenações, secretarias, manutenção.
   - Implementar com `User Groups` e `@permission_required`.
