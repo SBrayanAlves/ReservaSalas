@@ -16,8 +16,25 @@ Including another URLconf
 """
 
 from django.contrib import admin
-from django.urls import path
+from django.urls import path, include
 
 urlpatterns = [
     path("admin/", admin.site.urls),
+    path("", include("home.urls")),
+    path("reservas/", include("reservas.urls")),
+    path("salas/", include("salas.urls")),
+    path("conta/", include("usuarios.urls"))
 ]
+
+'''
+Exemplo de uso:
+https://www.reservadesalas.com -> home
+https://www.reservadesalas.com/conta -> passa o nome do usuario ...com/Alice
+https://www.reservadesalas.com/
+https://www.reservadesalas.com
+https://www.reservadesalas.com
+https://www.reservadesalas.com
+https://www.reservadesalas.com
+https://www.reservadesalas.com
+
+'''
