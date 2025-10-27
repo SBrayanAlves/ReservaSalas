@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block head %}
+    <link rel="stylesheet" href="{% static "css/style.css" %}">
+{% endblock %}
+
+{% block titulo %}Login{% endblock %}
+
+
+{% block content %}
+    <div class="login-container">
+        <div class="icon">
+            <img src="{% static 'images/LOGO-aplicacao.png' %}" alt="Logo">
+        </div>
+        <h1>Reserva de Salas UniEuro</h1>
+        <form action="{% url "login" %}", method="post">
+            {% csrf_token %}
+            <div class="input-box">
+                <label for="matricula">Matricula</label>
+                <input type="text" placeholder="Digite sua matricula" id="matricula" name="matricula" required>
+            </div>
+
+            <div class="input-box">
+                <label for="senha">Senha</label>
+                <input type="password" placeholder="Digite sua senha" name="senha" id="senha" required>
+            </div>
+
+            <input class="botao" type="submit" value="Entrar"> <br>
+            <a href="{% url "enviaremail" %}">Esqueci minha senha</a>
+        </form>
+    </div>
+{% endblock %}
