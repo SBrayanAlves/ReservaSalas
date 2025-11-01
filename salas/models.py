@@ -1,5 +1,4 @@
 from django.db import models
-from usuarios.models import Usuario
 
 class Bloco(models.Model):
     bloco = models.CharField(max_length=1)

@@ -10,15 +10,15 @@ class UsuarioAdmin(UserAdmin):
     ordering = ('matricula',)
 
     fieldsets = (
-        (None, {'fields': ('matricula', 'senha')}),
-        ('Informações pessoais', {'fields': ('nome', 'email_institucional')}),
+        (None, {'fields': ('matricula', 'password')}),
+        ('Informações pessoais', {'fields': ('nome', 'email_institucional', 'telefone', 'data_nascimento', 'sexo', 'cargo')}),
         ('Permissões', {'fields': ('is_staff', 'is_active', 'is_superuser', 'groups', 'user_permissions')}),
     )
 
     add_fieldsets = (
         (None, {
             'classes': ('wide',),
-            'fields': ('matricula', 'nome', 'email_institucional', 'senha1', 'senha2', 'is_staff', 'is_active')}
+            'fields': ('matricula', 'nome', 'email_institucional', 'cargo', 'password1', 'password2', 'is_staff', 'is_active')}
         ),
     )
 

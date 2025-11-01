@@ -19,7 +19,8 @@ from django.contrib.auth.forms import SetPasswordForm
 
 
 # CBV para criacao de usuario
-class CriarUsuario(LoginRequiredMixin, View):
+class CriarUsuario(LoginRequiredMixin, PermissionRequiredMixin, View):
+    permission_required = 'usuarios.add_usuario'
     def get(self, request: HttpRequest) -> HttpResponse:
         form = ValidacaoUsuario()
         return render(request, "usuarios/registrar.html", {"form": form})
