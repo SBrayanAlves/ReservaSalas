@@ -22,15 +22,15 @@ Gerenciar o cadastro, autenticação e controle de acesso dos usuários do siste
   - [x] Senhas criptografadas no banco.
   - [x] Função de redefinir senha.
 
-- [ ] **Controle de Acesso (Permissões)**
+- [x] **Controle de Acesso (Permissões)**
   - Tipos de acesso:
     - **Total**: Assessora Administrativa e Diretor.
     - **Moderado**: NTI.
     - **Visualização**: Coordenações, secretarias, manutenção.
   - Implementar com `User Groups` e `@permission_required`.
 
-- [ ] **Gerenciamento de Perfis**
-  - [ ] Cada usuário deve ter um perfil vinculado a um grupo.
+- [x] **Gerenciamento de Perfis**
+  - [x] Cada usuário deve ter um perfil vinculado a um grupo.
   - [x] Editar informações pessoais e cargo (somente admin).
 
 ---
@@ -45,8 +45,8 @@ Gerenciar o cadastro, autenticação e controle de acesso dos usuários do siste
   - [x] Logout
   - [x] Cadastro
   - [x] Edição de perfil
-- [ ] Restringir acesso por nível de permissão.
-- [ ] Criar página de administração para usuários.
+- [x] Restringir acesso por nível de permissão.
+- [x] Criar página de administração para usuários.
 
 ---
 
@@ -59,7 +59,7 @@ Campos principais:
 
 ## 📊 Critérios de Sucesso
 - [x] Apenas usuários autenticados podem acessar o sistema.
-- [ ] Níveis de permissão respeitados.
+- [x] Níveis de permissão respeitados.
 - [x] Senhas seguras e criptografadas.
 - [x] Cadastro e edição funcionais via formulário e admin.
 

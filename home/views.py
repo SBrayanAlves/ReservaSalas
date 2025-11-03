@@ -6,6 +6,7 @@ from salas.models import Bloco, Sala, Curso, Turma
 from reservas.models import Reserva, ReservaSala, Periodo, DiaSemana
 # Create your views here.
 
+# DashBoard Principal deve ser responsavel pela passagens da salas reservadas!
 class Home(LoginRequiredMixin, View):
     login_url = 'login'
     def get(self, request:HttpRequest )-> HttpResponse:
