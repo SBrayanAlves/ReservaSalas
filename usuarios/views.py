@@ -47,7 +47,6 @@ class LoginUsuario(View):
         if usuario is not None:
             login(request, usuario)
             return redirect("home")
-        messages.error(request, "Usuario ou senha incorretos.")
         return render(request, "usuarios/login.html")
 
 
@@ -96,7 +95,6 @@ class EnviarEmail(View):
                 [email],
                 fail_silently=False,
             )
-        messages.success(request, "Se este e-mail estiver cadastrado, um código será enviado.")
         return redirect("confirmacaocodigo")
 
 
@@ -150,6 +148,5 @@ class NovaSenha(View):
             form.save()
             request.session.pop("email_recuperacao", None)
             request.session.pop("codigo_verificado", None)
-            messages.success(request, "Senha alterada com sucesso")
             return redirect("login")
         return render(request, "usuarios/nova_senha.html", {"form": form})
