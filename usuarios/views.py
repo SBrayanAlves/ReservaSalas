@@ -28,8 +28,7 @@ class CriarUsuario(LoginRequiredMixin, PermissionRequiredMixin, View):
     def post(self, request: HttpRequest) -> HttpResponse:
         form = ValidacaoUsuario(request.POST)
         if form.is_valid():
-            usuario = form.save()
-            login(request, usuario)
+            form.save()
             messages.success(request, "Registro realizado com sucesso!")
             return redirect("home")
         return render(request, "usuarios/registrar.html", {"form": form})

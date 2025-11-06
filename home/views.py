@@ -17,6 +17,7 @@ class Home(LoginRequiredMixin, View):
         diassemana = DiaSemana.objects.filter()
         turnos = ReservaSala.objects.filter()
         periodos = Periodo.objects.filter()
+        reservas = Reserva.objects.filter()
         return render(request, 'home/home.html', {
             'salas': salas, 
             'blocos': blocos, 
@@ -24,6 +25,7 @@ class Home(LoginRequiredMixin, View):
             'turmas': turmas,
             'diassemana': diassemana,
             'turnos': turnos,
-            'periodos': periodos
+            'periodos': periodos,
+            'reservas': reservas
             })
     

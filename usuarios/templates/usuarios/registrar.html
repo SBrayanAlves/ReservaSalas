@@ -1,10 +1,97 @@
-{% extends 'base.html' %}
+{% extends 'dashboard.html' %}
+{% load static %}
 
-{% block content %}
-<h2>Registrar</h2>
-<form method="post">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit" class="btn btn-primary">Registrar</button>
-</form>
-{% endblock %}
+{% block titulo %}Cadastro de Usuário - {{ block.super }}{% endblock %}
+
+{% block main_content %}
+<div id="messageBox" class="hidden fixed top-10 left-1/2 -translate-x-1/2 bg-red-600 text-white px-6 py-3 rounded-lg shadow-xl z-50 transition-all duration-300">
+    <span id="messageText"></span>
+</div>
+
+<h3 class="text-3xl font-bold font-lora text-gray-800">Criar Novo Usuário</h3>
+<p class="mt-1 text-gray-600">Preencha os campos abaixo para cadastrar.</p>
+
+<div class="w-full max-w-3xl mx-auto mt-6">
+
+    <div id="cadastroScreen" class="bg-white p-8 md:p-12 rounded-2xl shadow-lg">
+        
+        <div class="flex justify-center mb-6">
+            <svg class="w-12 h-12 text-indigo-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M19 7.5v3m0 0v3m0-3h3m-3 0h-3m-2.25-4.125a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zM4 19.235v-.11a6.375 6.375 0 0112.75 0v.109A1.5 1.5 0 0115.15 21H5.85a1.5 1.5 0 01-1.4-1.664z" />
+            </svg>
+        </div>
+        
+        <form action="{% url 'registrar' %}" method="post" class="space-y-4">
+            {% csrf_token %}
+
+            <div>
+                <label for="nome" class="block text-sm font-medium text-gray-700 mb-1">Nome Completo</label>
+                <input type="text" id="nome" name="nome" placeholder="Digite o nome completo" class="w-full px-4 py-2.5 bg-slate-50 border border-gray-200 rounded-lg focus:outline-none focus:bg-white focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition" required>
+            </div>
+
+            <div>
+                <label for="email_institucional" class="block text-sm font-medium text-gray-700 mb-1">Email Institucional</label>
+                <input type="email" id="email_institucional" name="email_institucional" placeholder="ex: seu.nome@unieuro.edu.br" class="w-full px-4 py-2.5 bg-slate-50 border border-gray-200 rounded-lg focus:outline-none focus:bg-white focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition" required>
+            </div>
+
+            <div class="grid md:grid-cols-2 md:gap-x-4">
+                <div>
+                    <label for="matricula" class="block text-sm font-medium text-gray-700 mb-1">Matrícula</label>
+                    <input type="text" id="matricula" name="matricula" placeholder="6 dígitos" class="w-full px-4 py-2.5 bg-slate-50 border border-gray-200 rounded-lg focus:outline-none focus:bg-white focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition" maxlength="6" required>
+                </div>
+                <div class="mt-4 md:mt-0">
+                    <label for="telefone" class="block text-sm font-medium text-gray-700 mb-1">Telefone</label>
+                    <input type="tel" id="telefone" name="telefone" placeholder="(XX) XXXXX-XXXX" class="w-full px-4 py-2.5 bg-slate-50 border border-gray-200 rounded-lg focus:outline-none focus:bg-white focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition" required>
+                </div>
+            </div>
+
+            <div class="grid md:grid-cols-2 md:gap-x-4">
+                <div>
+                    <label for="data_nascimento" class="block text-sm font-medium text-gray-700 mb-1">Data de Nascimento</label>
+
+                    <input type="date" id="data_nascimento" name="data_nascimento" placeholder="dd/mm/aaaa" class="w-full px-4 py-2.5 bg-slate-50 border border-gray-200 rounded-lg focus:outline-none focus:bg-white focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition" required>
+                </div>
+                <div class="mt-4 md:mt-0">
+                    <label for="sexo" class="block text-sm font-medium text-gray-700 mb-1">Sexo</label>
+                    <select id="sexo" name="sexo" class="w-full px-4 py-2.5 bg-slate-50 border border-gray-200 rounded-lg focus:outline-none focus:bg-white focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition" required>
+                        <option value="" disabled selected>Selecione...</option>
+                        <option value="M">Masculino</option>
+                        <option value="F">Feminino</option>
+                    </select>
+                </div>
+            </div>
+
+            <div>
+                <label for="cargo" class="block text-sm font-medium text-gray-700 mb-1">Cargo</label>
+                <select id="cargo" name="cargo" class="w-full px-4 py-2.5 bg-slate-50 border border-gray-200 rounded-lg focus:outline-none focus:bg-white focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition" required>
+                    <option value="" disabled selected>Selecione o cargo...</option>
+                    <option value="DIRETOR">Diretor / Assessora Administrativa</option>
+                    <option value="NTI">Núcleo de Tecnologia e Informação</option>
+                    <option value="COORDENADOR">Coordenador</option>
+                    <option value="SECRETARIO">Secretário</option>
+                    <option value_atrib="NAPI">Núcleo de Apoio Psicopedagógico</option>
+                    <option value="MANUTENCAO">Manutenção</option>
+                </select>
+            </div>
+
+            <div class="grid md:grid-cols-2 md:gap-x-4">
+                <div>
+                    <label for="senha" class="block text-sm font-medium text-gray-700 mb-1">Senha</label>
+                    <input type="password" id="senha" name="senha" placeholder="Crie uma senha forte" class="w-full px-4 py-2.5 bg-slate-50 border border-gray-200 rounded-lg focus:outline-none focus:bg-white focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition" required>
+                </div>
+                <div class="mt-4 md:mt-0">
+                    <label for="senha_confirm" class="block text-sm font-medium text-gray-700 mb-1">Confirmar Senha</label>
+                    <input type="password" id="senha_confirm" name="senha_confirm" placeholder="Confirme sua senha" class="w-full px-4 py-2.5 bg-slate-50 border border-gray-200 rounded-lg focus:outline-none focus:bg-white focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition" required>
+                </div>
+            </div>
+
+            <div class="pt-4">
+                <button type="submit" id="cadastroButton" class="w-full bg-indigo-600 text-white py-3 px-4 rounded-lg font-medium hover:bg-indigo-700 transition duration-300 shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                    Criar Conta
+                </button>
+            </div>
+        </form>
+        
+    </div>
+
+</div> {% endblock main_content %}
