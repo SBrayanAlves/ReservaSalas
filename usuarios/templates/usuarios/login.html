@@ -1,53 +1,26 @@
-{% extends 'base.html' %}
-{% load static %}
+{% extends 'auth_base.html' %}
 
-{% block titulo %}Login{% endblock %}
+{% block titulo %}Login - Reserva de Salas{% endblock %}
 
-{% block content %}
-<body class="bg-gray-200 flex items-center justify-center min-h-screen p-4">
-
-    <!-- Caixa de Mensagem Customizada (substitui o alert()) -->
-    <div id="messageBox" class="hidden fixed top-10 left-1/2 -translate-x-1/2 bg-green-600 text-white px-6 py-3 rounded-lg shadow-xl z-50 transition-all duration-300">
-        <span id="messageText"></span>
-    </div>
-
-    <!-- Container principal para todas as telas -->
-    <div class="w-full max-w-md">
-
-        <!-- ================================== -->
-        <!-- Tela 1: Login (Visível por padrão) -->
-        <!-- ================================== -->
-        <div id="loginScreen" class="bg-white p-8 md:p-12 rounded-2xl shadow-xl">
-            <!-- Ícone -->
-            <div class="flex justify-center mb-6">
-                <div class="w-16 h-16 bg-indigo-600 rounded-2xl flex items-center justify-center">
-                    <!-- SVG de Ícone de Porta (para replicar o logo) -->
-                    <svg class="w-8 h-8 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M8 4H16M8 4V20H16V4M8 4L16 4M12 14V16" />
-                    </svg>
-                </div>
-            </div>
-            <!-- Título -->
-            <h1 class="font-lora text-3xl text-center text-gray-800 mb-8">Reserva de Salas Unieuro</h1>
-            <!-- Formulário -->
-            <form action="{% url 'login' %}" method="post">
-                {% csrf_token %}
-                <div class="mb-4">
-                    <label for="matricula" class="block text-sm font-medium text-gray-700 mb-1">Matrícula</label>
-                    <input type="text" id="matricula" name="matricula" placeholder="Digite sua matrícula" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500" maxlength="6" required>
-                </div>
-                <div class="mb-6">
-                    <label for="senha" class="block text-sm font-medium text-gray-700 mb-1">Senha</label>
-                    <input type="password" id="senha" name="senha" placeholder="Digite sua senha" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500" required>
-                </div>
-                <button type="submit" id="loginButton" class="w-full bg-indigo-600 text-white py-3 rounded-lg font-semibold hover:bg-indigo-700 transition duration-300">Entrar</button>
-            </form>
-            <div class="text-center mt-6">
-                <a href="{% url 'enviaremail' %}" id="forgotPasswordLink" class="text-indigo-600 hover:underline">Esqueci minha senha</a>
-            </div>
+{% block auth_content %}
+    <h1 class="font-lora text-3xl text-center text-gray-800 mb-8">Reserva de Salas Unieuro</h1>
+    
+    <form action="{% url 'login' %}" method="post">
+        {% csrf_token %}
+        <div class="mb-4">
+            <label for="matricula" class="block text-sm font-medium text-gray-700 mb-1">Matrícula</label>
+            <input type="text" id="matricula" name="matricula" placeholder="Digite sua matrícula" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500" maxlength="6" required>
         </div>
-
-    </div> <!-- Fim do container .max-w-md -->
-
-</body>
-{% endblock %}  
+        <div class="mb-6">
+            <label for="senha" class="block text-sm font-medium text-gray-700 mb-1">Senha</label>
+            <input type="password" id="senha" name="senha" placeholder="Digite sua senha" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500" required>
+        </div>
+        <button type="submit" class="w-full bg-indigo-600 text-white py-3 rounded-lg font-semibold hover:bg-indigo-700 transition duration-300">
+            Entrar
+        </button>
+    </form>
+    
+    <div class="text-center mt-6">
+        <a href="{% url 'enviaremail' %}" class="text-indigo-600 hover:underline">Esqueci minha senha</a>
+    </div>
+{% endblock %}

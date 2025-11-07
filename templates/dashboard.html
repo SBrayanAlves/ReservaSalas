@@ -3,84 +3,55 @@
 
 {% block titulo %}Dashboard - Reserva de Salas{% endblock %}
 
-{% block head %}
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-{% endblock %}
+{% block body_class %}bg-gray-100{% endblock %}
 
 {% block content %}
-<div class="flex h-screen bg-gray-100">
-    
+<div class="flex h-screen">
     <aside class="w-64 flex-shrink-0 bg-white shadow-lg flex flex-col justify-between">
-        
         <div>
             <div class="text-center py-6 border-b border-gray-200">
                 <img src="https://upload.wikimedia.org/wikipedia/commons/8/8c/Blue_square.svg" width="48" height="48" alt="Logo" class="mx-auto mb-2">
-                <h6 class="text-xl font-bold font-lora text-gray-800">
-                    Reserva de Salas
-                </h6>
-                <small class="text-sm text-gray-500">
-                    Sistema de Gestão
-                </small>
+                <h6 class="text-xl font-bold font-lora text-gray-800">Reserva de Salas</h6>
+                <small class="text-sm text-gray-500">Sistema de Gestão</small>
             </div>
-
             <nav class="mt-6 px-4">
                 <ul class="space-y-2">
                     <li>
-                        <a href="{% url "home" %}" class="flex items-center px-4 py-2 bg-gray-100 text-gray-900 font-medium rounded-lg">
-                            <i class="bi bi-house-door mr-3 text-lg"></i>
-                            Início
+                        <a href="{% url 'home' %}" class="flex items-center px-4 py-2 {% if request.resolver_match.url_name == 'home' %}bg-gray-100 text-gray-900 font-medium{% else %}text-gray-700 hover:bg-gray-50{% endif %} rounded-lg transition-colors duration-200">
+                            <i class="bi bi-house-door mr-3 text-lg"></i> Início
                         </a>
                     </li>
-                    
+                    {% if user.cargo == 'DIRETOR' %}
                     <li>
-                        <a href="{% url "registrar" %}" class="flex items-center px-4 py-2 text-gray-700 rounded-lg hover:bg-gray-100 hover:text-gray-900 transition-colors duration-200">
-                            <i class="bi bi-person-plus mr-3 text-lg"></i>
-                            Cadastrar
+                        <a href="{% url 'registrar' %}" class="flex items-center px-4 py-2 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors duration-200">
+                            <i class="bi bi-person-plus mr-3 text-lg"></i> Cadastrar
                         </a>
                     </li>
-                    <li>
-                        <a href="#" class="flex items-center px-4 py-2 text-gray-700 rounded-lg hover:bg-gray-100 hover:text-gray-900 transition-colors duration-200">
-                            <i class="bi bi-calendar-check mr-3 text-lg"></i>
-                            Reservar Salas
-                        </a>
-                    </li>
-                    <li>
-                        <a href="#" class="flex items-center px-4 py-2 text-gray-700 rounded-lg hover:bg-gray-100 hover:text-gray-900 transition-colors duration-200">
-                            <i class="bi bi-eye mr-3 text-lg"></i>
-                            Exibir Salas
-                        </a>
-                    </li>
-                    <li>
-                        <a href="#" class="flex items-center px-4 py-2 text-gray-700 rounded-lg hover:bg-gray-100 hover:text-gray-900 transition-colors duration-200">
-                            <i class="bi bi-graph-up mr-3 text-lg"></i>
-                            Relatórios
-                        </a>
-                    </li>
-                    <li>
-                        <a href="#" class="flex items-center px-4 py-2 text-gray-700 rounded-lg hover:bg-gray-100 hover:text-gray-900 transition-colors duration-200">
-                            <i class="bi bi-gear mr-3 text-lg"></i>
-                            Configurações
-                        </a>
-                    </li>
-                </ul>
+                    {% endif %}
+                    </ul>
             </nav>
         </div>
-
         <div class="p-4 border-t border-gray-200">
-            <a href="{% url "logout" %}">
+             <a href="{% url 'logout' %}">
                 <button class="flex items-center justify-center w-full px-4 py-2 border border-gray-300 text-gray-700 rounded-full hover:bg-gray-100 transition-colors duration-200">
-                    <i class="bi bi-box-arrow-right mr-2"></i>
-                    Sair
+                    <i class="bi bi-box-arrow-right mr-2"></i> Sair
                 </button>
             </a>
         </div>
     </aside>
 
     <main class="flex-1 overflow-y-auto p-8">
-        
-        {% block main_content %}
-            {% endblock %}
+        {% if messages %}
+            <div class="mb-6 space-y-2">
+                {% for message in messages %}
+                    <div class="p-4 rounded-lg {% if message.tags == 'error' %}bg-red-100 text-red-700{% else %}bg-green-100 text-green-700{% endif %}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
 
+        {% block main_content %}{% endblock %}
     </main>
 </div>
 {% endblock %}

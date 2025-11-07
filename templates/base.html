@@ -4,34 +4,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <title>    
-        {% block titulo %}
-        {% endblock %}
-    </title>
-        <!-- Script do Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    
-    <!-- Fontes do Google: Inter (sans-serif) e Lora (serif para títulos) -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=Lora:wght@400;500;700&display=swap" rel="stylesheet">
+    <title>{% block titulo %}Reserva de Salas{% endblock %}</title>
+    <link rel="stylesheet" href="{% static "css/tailwind.css" %}">
     
     <style>
-        /* Define as fontes personalizadas */
-        body {
-            font-family: 'Inter', sans-serif;
-        }
-        .font-lora {
-            font-family: 'Lora', serif;
-        }
+        body { font-family: 'Inter', sans-serif; }
+        .font-lora { font-family: 'Lora', serif; }
     </style>
     
-    {% block head %}
-    {% endblock %}
+    {% block head %}{% endblock %}
 </head>
-<body>
-    {% block content %}
-    {% endblock %}
+<body class="{% block body_class %}{% endblock %}">
+    {% block content %}{% endblock %}
+    
+    {% block scripts %}{% endblock %}
 </body>
 </html>
