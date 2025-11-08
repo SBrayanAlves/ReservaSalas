@@ -28,7 +28,7 @@
             <li class="nav-item mb-2">
             <a href="{% url "home" %}" class="nav-link active"><i class="bi bi-house-door me-2"></i>Início</a>
             </li>
-            {% if user.cargo == 'DIRETOR' %}
+            {% if user.cargo == 'Diretor' or user.cargo == 'Assesora Administrativa' %}
             <li class="nav-item mb-2">
             <a href="{% url "registrar" %}" class="nav-link"><i class="bi bi-person-plus me-2"></i>Cadastrar</a>
             </li>
@@ -37,7 +37,7 @@
             <a href="#" class="nav-link"><i class="bi bi-calendar-check me-2"></i>Reservar Salas</a>
             </li>
             <li class="nav-item mb-2">
-            <a href="#" class="nav-link"><i class="bi bi-eye me-2"></i>Exibir Salas</a>
+            <a href="{% url "listarsalas" %}" class="nav-link"><i class="bi bi-eye me-2"></i>Exibir Salas</a>
                 </li>
             <li class="nav-item mb-2">
             <a href="#" class="nav-link"><i class="bi bi-graph-up me-2"></i>Relatórios</a>
@@ -45,7 +45,7 @@
             <li class="nav-item mb-2">
             <a href="#" class="nav-link"><i class="bi bi-gear me-2"></i>Configurações</a>
             </li>
-            {% if user.cargo == 'DIRETOR' %}
+            {% if user.cargo == 'Diretor' or user.cargo == 'Assesora Administrativa'%}
             <li class="nav-item mb-2">
             <a href="{% url "admin:index" %}" class="nav-link"><i class="bi bi-gear me-2"></i>Administração</a>
             </li>

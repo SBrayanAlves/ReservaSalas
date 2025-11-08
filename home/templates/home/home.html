@@ -100,37 +100,5 @@
         </table>
     </div>
     </div>
-
-    <!-- Tabela de Salas Livres -->
-
-    <div class="card shadow-sm p-3">
-    <h6 class="fw-bold mb-3">Salas Disponíveis</h6>
-    <div class="table-responsive">
-        <table class="table table-bordered align-middle text-center">
-        <thead class="table-light">
-            <tr>
-            <th>Bloco</th>
-            <th>Sala</th>
-            <th>Turma</th>
-            <th>Dia da Semana</th>
-            <th>Turno</th>
-            <th>Selecionar</th>
-            </tr>
-        </thead>
-        
-        <tbody>
-            {% for sala in salas %}
-            <tr>
-            <td>{{ sala.id_bloco }}</td><td>{{ sala.numero_sala }}</td><td></td>
-            <td><span class="badge bg-night"></span></td>
-            <td></td>
-            <td><button class="btn btn-sm btn-outline-secondary rounded-pill">Selecionar</button></td>
-            {% endfor %}
-            </tr>
-        </tbody>
-        
-        </table>
-    </div>
-    </div>
 </div>
 {% endblock content %}

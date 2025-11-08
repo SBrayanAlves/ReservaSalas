@@ -6,8 +6,8 @@ import re
 
 class ValidacaoUsuario(forms.ModelForm):
 
-    senha = forms.CharField(widget=forms.PasswordInput(), label='senha', required=True)
-    senha2 = forms.CharField(widget=forms.PasswordInput(), label='confirmacaosenha', required=True)
+    senha = forms.CharField(widget=forms.PasswordInput(), label='Senha', required=True)
+    senha2 = forms.CharField(widget=forms.PasswordInput(), label='Confirmação da senha', required=True)
     email_institucional = forms.EmailField(required=True, help_text='O email e obrigatorio!')
     
     #cria um formulario com os campos abaixo para validacao dos dados
