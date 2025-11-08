@@ -4,8 +4,8 @@ from .models import Usuario
 
 class UsuarioAdmin(UserAdmin):
     model = Usuario
-    list_display = ('matricula', 'nome', 'email_institucional', 'is_staff', 'is_superuser')
-    list_filter = ('is_staff', 'is_superuser', 'is_active')
+    list_display = ('matricula', 'nome', 'email_institucional', 'cargo', 'is_superuser')
+    list_filter = ('matricula', 'cargo', 'is_superuser')
     search_fields = ('matricula', 'nome', 'email_institucional')
     ordering = ('matricula',)
 
@@ -18,7 +18,7 @@ class UsuarioAdmin(UserAdmin):
     add_fieldsets = (
         (None, {
             'classes': ('wide',),
-            'fields': ('matricula', 'nome', 'email_institucional', 'cargo', 'password1', 'password2', 'is_staff', 'is_active')}
+            'fields': ('matricula', 'nome', 'email_institucional', 'telefone', 'data_nascimento', 'sexo', 'cargo', 'password1', 'password2', 'is_staff', 'is_active', 'is_superuser')}
         ),
     )
 
