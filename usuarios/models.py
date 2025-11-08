@@ -49,15 +49,16 @@ class UsuarioManager(BaseUserManager):
 class Usuario(AbstractBaseUser, PermissionsMixin):
 
     CARGOS = [
-        ("DIRETOR", "Diretor / Assessora Administrativa"),
-        ("NTI", "Núcleo de Tecnologia e Informação"),
-        ("COORDENADOR", "Coordenador"),
-        ("SECRETARIO", "Secretário"),
-        ("NAPI", "Núcleo de Apoio Psicopedagógico"),
-        ("MANUTENCAO", "Manutenção"),
+        ("Diretor", "Diretor"),
+        ("Assessora Administrativa","Assessora Administrativa"),
+        ("Núcleo de Tecnologia e Informação", "Núcleo de Tecnologia e Informação"),
+        ("Coordenador", "Coordenador"),
+        ("Secretário", "Secretário"),
+        ("Núcleo de Apoio Psicopedagógico", "Núcleo de Apoio Psicopedagógico"),
+        ("Manutenção", "Manutenção"),
     ]
 
-    matricula = models.CharField(max_length=6, unique=True)
+    matricula = models.CharField(max_length=6, unique=True, verbose_name='Matrícula')
     criado_por = models.ForeignKey(
         "self",
         models.SET_NULL,
@@ -70,22 +71,22 @@ class Usuario(AbstractBaseUser, PermissionsMixin):
     nome = models.CharField(max_length=255)
     email_institucional = models.EmailField(unique=True)
     telefone = models.CharField(max_length=15, unique=True)
-    data_nascimento = models.DateField()
+    data_nascimento = models.DateField(verbose_name='Data de nascimento')
     sexo = models.CharField(
-        max_length=1,
+        max_length=25,
         blank=True,
         null=True,
-        choices=[("M", "Masculino"), ("F", "Feminino")],
+        choices=[("Masculino", "Masculino"), ("Feminino", "Feminino"), ("Outro", "Outro"), ("Prefiro não informar", "Prefiro não informar")],
     )
-    cargo = models.CharField(max_length=25, choices=CARGOS)
+    cargo = models.CharField(max_length=40, choices=CARGOS)
 
     status_login = models.BooleanField(default=False)
     dth_insert = models.DateTimeField(default=timezone.now)
     dth_delete = models.DateTimeField(blank=True, null=True)
     status_delete = models.BooleanField(default=False)
 
-    is_active = models.BooleanField(default=True)
-    is_staff = models.BooleanField(default=True)
+    is_active = models.BooleanField(default=True, verbose_name='Ativo', help_text='Indica se este usuário deve ser tratado como ativo.')
+    is_staff = models.BooleanField(default=True, verbose_name='Membro da Equipe', help_text='Indica se o usuário pode acessar este site de administração.')
 
     objects = UsuarioManager()
 

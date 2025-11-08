@@ -19,7 +19,7 @@ class Bloco(models.Model):
 
 
 class Sala(models.Model):
-    id_bloco = models.ForeignKey(Bloco, on_delete=models.PROTECT)
+    id_bloco = models.ForeignKey(Bloco, on_delete=models.PROTECT, verbose_name='Bloco')
     criador_por = models.ForeignKey(
         'usuarios.Usuario',
         on_delete=models.SET_NULL,
@@ -28,9 +28,9 @@ class Sala(models.Model):
         null=True
     )
     andar = models.IntegerField()
-    numero_sala = models.IntegerField()
+    numero_sala = models.IntegerField(verbose_name='Número da sala')
     capacidade = models.IntegerField()
-    tv_tamanho = models.CharField(max_length=5)
+    tv_tamanho = models.CharField(max_length=5, verbose_name='Tamanho da TV')
     data_show = models.BooleanField(default=False)
     ativo = models.BooleanField(default=True)
     motivo_inativo = models.TextField(blank=True, null=True)
@@ -61,7 +61,7 @@ class Curso(models.Model):
 
 
 class Turma(models.Model):
-    id_curso = models.ForeignKey(Curso, on_delete=models.SET_NULL, blank=True, null=True)
+    id_curso = models.ForeignKey(Curso, on_delete=models.SET_NULL, blank=True, null=True, verbose_name='Curso')
     criador_por = models.ForeignKey(
         'usuarios.Usuario',
         on_delete=models.SET_NULL,
@@ -69,9 +69,9 @@ class Turma(models.Model):
         blank=True,
         null=True
     )
-    codigo_turma = models.CharField(max_length=255)
+    codigo_turma = models.CharField(max_length=255, verbose_name='Código da turma')
     periodo_letivo = models.CharField(max_length=25, null=True)
-    quantidade_aluno = models.IntegerField(null=True)
+    quantidade_aluno = models.IntegerField(null=True, verbose_name='Quantidade de alunos')
     created_at = models.DateTimeField(auto_now_add=True)
     deleted_at = models.DateTimeField(blank=True, null=True)
     is_deleted = models.BooleanField(default=False)
