@@ -4,175 +4,71 @@
 {% block titulo %}Reserva de Salas - Nova Senha{% endblock %}
 
 {% block content %}
-<body class="bg-gray-200 flex items-center justify-center min-h-screen p-4">
+<body class="bg-gray-100 flex items-center justify-center min-h-screen">
 
-    <!-- Caixa de Mensagem Customizada (substitui o alert()) -->
-    <div id="messageBox" class="hidden fixed top-10 left-1/2 -translate-x-1/2 bg-green-600 text-white px-6 py-3 rounded-lg shadow-xl z-50 transition-all duration-300">
-        <span id="messageText"></span>
-    </div>
-
-    <!-- Container principal para todas as telas -->
-    <div class="w-full max-w-md">
-
-        <!-- =================================== -->
-        <!-- Tela 5: Nova Senha -->
-        <!-- =================================== -->
-        <div id="passwordScreen" class="bg-white p-8 md:p-12 rounded-2xl shadow-xl">
-            <!-- Ícone -->
-            <div class="flex justify-center mb-6">
-                <div class="w-16 h-16 bg-indigo-600 rounded-2xl flex items-center justify-center">
-                    <!-- SVG de Ícone de Porta (para replicar o logo) -->
-                    <svg class="w-8 h-8 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M8 4H16M8 4V20H16V4M8 4L16 4M12 14V16" />
-                    </svg>
-                </div>
-            </div>
-            <!-- Título -->
-            <h1 class="font-lora text-3xl text-center text-gray-800 mb-8">Nova senha</h1>
-            <!-- Formulário -->
-            <form action="" method="post">
-                {% csrf_token %}
-                <div class="mb-4">
-                    <input type="password" name='new_password1' id="newPassword" placeholder="Digite nova senha" class="w-full px-4 py-3 bg-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                </div>
-                <!-- Checklist de Requisitos da Senha -->
-                <div class="space-y-2 text-sm text-gray-600 mb-4">
-                    <div class="flex items-center">
-                        <input type="checkbox" id="check-length" class="h-4 w-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500" disabled>
-                        <label for="check-length" class="ml-2">Mínimo 8 caracteres</label>
-                    </div>
-                    <div class="flex items-center">
-                        <input type="checkbox" id="check-uppercase" class="h-4 w-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500" disabled>
-                        <label for="check-uppercase" class="ml-2">Pelo menos 1 letra maiúscula (A-Z)</label>
-                    </div>
-                     <div class="flex items-center">
-                        <input type="checkbox" id="check-lowercase" class="h-4 w-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500" disabled>
-                        <label for="check-lowercase" class="ml-2">Pelo menos 1 letra minúscula (a-z)</label>
-                    </div>
-                     <div class="flex items-center">
-                        <input type="checkbox" id="check-number" class="h-4 w-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500" disabled>
-                        <label for="check-number" class="ml-2">Pelo menos 1 número (0-9)</label>
-                    </div>
-                     <div class="flex items-center">
-                        <input type="checkbox" id="check-special" class="h-4 w-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500" disabled>
-                        <label for="check-special" class="ml-2">Pelo menos 1 caractere especial (!@#$%^&*. etc.)</label>
-                    </div>
-                </div>
-                <div class="mb-6">
-                    <input type="password" name='new_password2' id="confirmPassword" placeholder="Confirme a senha" class="w-full px-4 py-3 bg-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                </div>
-                <button id="registerButton" class="w-full bg-indigo-600 text-white py-3 rounded-lg font-semibold hover:bg-indigo-700 transition duration-300">Cadastrar</button>
-            </form>
-            {% for message in messages %}  
-                <p>{{ message }}</p>
-            {% endfor %}
-             <!-- Link para Voltar -->
-            <div class="text-center mt-4">
-                 <a href="{% url "login" %}" id="backToLoginFromPass" class="text-gray-500 hover:underline text-sm">Voltar ao login</a>
-            </div>
+    <main class="bg-white p-8 md:p-10 rounded-2xl shadow-lg w-full max-w-md mx-4">
+        <div class="flex justify-center mb-6">
+            <img src="{% static "images/logounieuro.png" %}" alt="" class="h-28 w-28">
         </div>
-    </div> <!-- Fim do container .max-w-md -->
 
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            
-            // Botões e Links
-            const registerButton = document.getElementById('registerButton');
-            const backToLoginFromPass = document.getElementById('backToLoginFromPass');
+        <h1 class="text-3xl font-bold text-center text-gray-800 mb-8">
+            Nova senha
+        </h1>
 
-            // Inputs
-            const newPasswordInput = document.getElementById('newPassword');
-            const confirmPasswordInput = document.getElementById('confirmPassword');
+        <form id="newPasswordForm" class="space-y-4" method='post'>
+            {% csrf_token %}
+            <div>
+                <label for="newPassword" class="sr-only">Nova senha</label>
+                <input type="password" id="newPassword" name="new_password1" placeholder="Digite nova senha" required
+                       class="w-full px-4 py-3 bg-gray-200 border border-gray-200 text-gray-800 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition duration-200 placeholder-gray-500">
+            </div>
 
-            // Checkboxes de validação
-            const checks = {
-                length: document.getElementById('check-length'),
-                uppercase: document.getElementById('check-uppercase'),
-                lowercase: document.getElementById('check-lowercase'),
-                number: document.getElementById('check-number'),
-                special: document.getElementById('check-special'),
-            };
+            <div id="password-requirements" class="space-y-2 text-sm text-gray-700">
+                <div class="flex items-center">
+                    <input id="req-length" type="checkbox" class="h-4 w-4 text-gray-400 rounded border-gray-300 req-checkbox transition-colors duration-200">
+                    <label for="req-length" class="ml-2">Mínimo 8 caracteres</label>
+                </div>
+                <div class="flex items-center">
+                    <input id="req-upper" type="checkbox" class="h-4 w-4 text-gray-400 rounded border-gray-300 req-checkbox transition-colors duration-200">
+                    <label for="req-upper" class="ml-2">Pelo menos 1 letra maiúscula (A-Z)</label>
+                </div>
+                <div class="flex items-center">
+                    <input id="req-lower" type="checkbox" class="h-4 w-4 text-gray-400 rounded border-gray-300 req-checkbox transition-colors duration-200">
+                    <label for="req-lower" class="ml-2">Pelo menos 1 letra minúscula (a-z)</label>
+                </div>
+                <div class="flex items-center">
+                    <input id="req-number" type="checkbox" class="h-4 w-4 text-gray-400 rounded border-gray-300 req-checkbox transition-colors duration-200">
+                    <label for="req-number" class="ml-2">Pelo menos 1 número (0-9)</label>
+                </div>
+                <div class="flex items-center">
+                    <input id="req-special" type="checkbox" class="h-4 w-4 text-gray-400 rounded border-gray-300 req-checkbox transition-colors duration-200">
+                    <label for="req-special" class="ml-2">Pelo menos 1 caractere especial (!@#$...)</label>
+                </div>
+            </div>
 
-            // Elementos da Caixa de Mensagem
-            const messageBox = document.getElementById('messageBox');
-            const messageText = document.getElementById('messageText');
-            let messageTimer;
+            <div>
+                <label for="confirmPassword" class="sr-only">Confirme a senha</label>
+                <input type="password" id="confirmPassword" name="new_password2" placeholder="Confirme a senha" required
+                       class="w-full px-4 py-3 bg-gray-200 border border-gray-200 text-gray-800 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition duration-200 placeholder-gray-500">
+            </div>
 
-            // --- Funções Auxiliares ---
+            <div class="text-center min-h-[24px]">
+                <p id="errorMessage" class="text-sm"></p>
+            </div>
 
-            // Função para mostrar a caixa de mensagem customizada
-            function showMessage(message, isError = false) {
-                messageText.textContent = message;
-                messageBox.classList.remove('hidden');
-                // Muda a cor se for uma mensagem de erro
-                if (isError) {
-                    messageBox.classList.remove('bg-green-600');
-                    messageBox.classList.add('bg-red-600');
-                } else {
-                    messageBox.classList.remove('bg-red-600');
-                    messageBox.classList.add('bg-green-600');
-                }
-                
-                // Esconde a mensagem após 3 segundos
-                clearTimeout(messageTimer);
-                messageTimer = setTimeout(() => {
-                    messageBox.classList.add('hidden');
-                }, 3000);
-            }
+            <button type="submit"
+                    class="w-full bg-indigo-600 text-white py-3 rounded-lg font-semibold hover:bg-indigo-700 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
+                Cadastrar
+            </button>
+        </form>
+        
+        <div class="text-center mt-4">
+            <a href="{% url "login" %}" class="text-sm text-gray-600 hover:text-indigo-800 hover:underline">
+                Voltar
+            </a>
+        </div>
+    </main>
 
-            // --- Event Listeners ---
-
-            // Seleciona o formulário
-            const passwordForm = document.querySelector('form'); 
-
-            // Escuta o evento 'submit' do formulário
-            passwordForm.addEventListener('submit', (e) => {
-                
-                const pass = newPasswordInput.value;
-                const confirmPass = confirmPasswordInput.value;
-
-                // Verifica se as senhas são iguais
-                if (pass !== confirmPass) {
-                    e.preventDefault(); // IMPEDE o envio do formulário
-                    showMessage('As senhas não conferem.', true);
-                    return;
-                }
-
-                // Verifica se todos os requisitos foram atendidos
-                const allChecked = Object.values(checks).every(check => check.checked);
-                if (!allChecked) {
-                    e.preventDefault(); // IMPEDE o envio do formulário
-                    showMessage('A senha não cumpre todos os requisitos.', true);
-                    return;
-                }
-
-                // Se chegamos até aqui, a validação passou.
-                // O e.preventDefault() NÃO é chamado.
-                // O formulário será enviado normalmente para o Django.
-            });
-
-            // --- Validação de Senha em Tempo Real ---
-            newPasswordInput.addEventListener('input', () => {
-                const pass = newPasswordInput.value;
-
-                // Valida o comprimento
-                checks.length.checked = pass.length >= 8;
-
-                // Valida letra maiúscula
-                checks.uppercase.checked = /[A-Z]/.test(pass);
-
-                // Valida letra minúscula
-                checks.lowercase.checked = /[a-z]/.test(pass);
-
-                // Valida número
-                checks.number.checked = /[0-9]/.test(pass);
-
-                // Valida caractere especial
-                checks.special.checked = /[!@#$%^&*.()]/.test(pass);
-            });
-
-        });
-    </script>
-
+    <script src="{% static "js/novasenha.js" %}"></script>
 </body>
 {% endblock %}  
