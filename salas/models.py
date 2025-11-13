@@ -27,7 +27,7 @@ class Sala(models.Model):
         blank=True,
         null=True
     )
-    andar = models.IntegerField()
+    andar = models.CharField(max_length=50)
     numero_sala = models.IntegerField(verbose_name='Número da sala')
     capacidade = models.IntegerField()
     tv_tamanho = models.CharField(max_length=5, verbose_name='Tamanho da TV')
