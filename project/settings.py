@@ -138,3 +138,16 @@ AUTH_USER_MODEL = 'usuarios.Usuario'
 # Email
 
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
+JAZZMIN_SETTINGS = {
+    "custom_links": {
+        "usuarios": [
+            {
+                "name": "Voltar",
+                "url": "home",
+                "icon": "fas fa-arrow-left",  
+                "permissions": []
+            },
+        ]
+    }
+}
