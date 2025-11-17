@@ -5,8 +5,8 @@ from django.views import View
 from django.views.generic import UpdateView
 from django.contrib import messages
 from django.http import HttpRequest, HttpResponse
-from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
-from .forms import ValidacaoUsuario
+from django.contrib.auth.mixins import LoginRequiredMixin#, PermissionRequiredMixin
+#from .forms import ValidacaoUsuario
 from ._forms import EditarUsuario
 from .models import Usuario
 from django.urls import reverse_lazy
@@ -19,19 +19,19 @@ from django.contrib.auth.forms import SetPasswordForm
 
 
 # CBV para criacao de usuario
-class CriarUsuario(LoginRequiredMixin, PermissionRequiredMixin, View):
-    permission_required = 'usuarios.add_usuario'
-    def get(self, request: HttpRequest) -> HttpResponse:
-        form = ValidacaoUsuario()
-        return render(request, "usuarios/registrar.html", {"form": form})
+# class CriarUsuario(LoginRequiredMixin, PermissionRequiredMixin, View):
+#     permission_required = 'usuarios.add_usuario'
+#     def get(self, request: HttpRequest) -> HttpResponse:
+#         form = ValidacaoUsuario()
+#         return render(request, "usuarios/registrar.html", {"form": form})
 
-    def post(self, request: HttpRequest) -> HttpResponse:
-        form = ValidacaoUsuario(request.POST)
-        if form.is_valid():
-            form.save()
-            messages.success(request, "Registro realizado com sucesso!")
-            return redirect("home")
-        return render(request, "usuarios/registrar.html", {"form": form})
+#     def post(self, request: HttpRequest) -> HttpResponse:
+#         form = ValidacaoUsuario(request.POST)
+#         if form.is_valid():
+#             form.save()
+#             messages.success(request, "Registro realizado com sucesso!")
+#             return redirect("home")
+#         return render(request, "usuarios/registrar.html", {"form": form})
 
 
 # CBV para login de usuario passando matricula e senha
@@ -57,7 +57,7 @@ class LogoutUsuario(LoginRequiredMixin, View):
 
 
 # CBV para edicao de usuario
-class EdicaoUsuario(LoginRequiredMixin, UpdateView):
+class Perfil(LoginRequiredMixin, UpdateView):
     model = Usuario
     form_class = EditarUsuario
     template_name = "usuarios/edicao.html"
