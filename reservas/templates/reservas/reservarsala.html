@@ -1,2 +1,233 @@
 {% extends "dashboard.html" %}
-reserva ai bobao
+{% load static %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    
+    <div class="mb-8 border-b pb-4 border-gray-200 flex justify-between items-center">
+        <div>
+            <h1 class="text-3xl font-bold text-gray-800">Nova Reserva de Sala</h1>
+            <p class="text-gray-600 mt-1">Preencha os dados para alocar uma turma.</p>
+        </div>
+        <a href="{% url 'listarsalas' %}" class="text-blue-600 hover:text-blue-800 font-medium">
+            <i class="fa-solid fa-arrow-left mr-2"></i> Voltar
+        </a>
+    </div>
+
+    <form method="POST" action="" class="space-y-8">
+        {% csrf_token %}
+
+        <div class="bg-white shadow-md rounded-lg p-6 border-l-4 border-blue-500">
+            <h2 class="text-xl font-semibold text-gray-700 mb-4">
+                <i class="fa-solid fa-book mr-2"></i> Informações Acadêmicas
+            </h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <label for="id_curso" class="block text-sm font-medium text-gray-700 mb-1">Curso</label>
+                    <select name="id_curso" id="id_curso" class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 transition">
+                        <option value="" disabled selected>Selecione um curso...</option>
+                        {% for curso in cursos %}
+                            <option value="{{ curso.id }}">{{ curso.nome_curso }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div>
+                    <label for="id_turma" class="block text-sm font-medium text-gray-700 mb-1">Turma</label>
+                    <select name="id_turma" id="id_turma" class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 transition">
+                        <option value="" disabled selected>Selecione a turma...</option>
+                        {% for turma in turmas %}
+                            <option value="{{ turma.id }}">{{ turma.codigo_turma }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="md:col-span-2">
+                    <label for="responsavel" class="block text-sm font-medium text-gray-700 mb-1">Responsável pela Reserva</label>
+                    <input type="text" name="" id="responsavel" value="{{ request.user.nome }}" readonly 
+                           class="w-full bg-gray-100 rounded-md border-gray-300 text-gray-500 cursor-not-allowed">
+                </div>
+                <div class="md:col-span-2">
+                    <label for="responsavel" class="block text-sm font-medium text-gray-700 mb-1">
+                        Professor Responsável
+                    </label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <i class="fa-solid fa-chalkboard-user text-gray-400"></i>
+                        </div>
+                        <input type="text" 
+                            name="professor" 
+                            id="professor" 
+                            required
+                            placeholder="Digite o nome do Professor(a)" 
+                            class="w-full pl-10 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 transition">
+                    </div>
+                    <p class="text-xs text-gray-500 mt-1">Informe o nome do docente que ministrará a aula nesta sala.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white shadow-md rounded-lg p-6 border-l-4 border-green-500">
+            <h2 class="text-xl font-semibold text-gray-700 mb-4">
+                <i class="fa-solid fa-map-location-dot mr-2"></i> Local e Vigência
+            </h2>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                
+                <div>
+                    <label for="display_bloco" class="block text-sm font-medium text-gray-700 mb-1">Bloco</label>
+                    <input type="text" id="display_bloco" value="{{ bloco.bloco }}" readonly 
+                        class="w-full bg-gray-100 rounded-md border-gray-300 text-gray-500 cursor-not-allowed">
+                    <input type="hidden" name="id_bloco" value="{{ bloco.id }}">
+                </div>
+
+                <div class="md:col-span-2">
+                    <label for="display_sala" class="block text-sm font-medium text-gray-700 mb-1">Sala</label>
+                    <input type="text" id="display_sala" value="{{ sala.numero_sala }}" readonly 
+                        class="w-full bg-gray-100 rounded-md border-gray-300 text-gray-500 cursor-not-allowed">
+                    <input type="hidden" name="id_sala" value="{{ sala.id }}">
+                </div>
+
+                <div>
+                    <label for="data_inicial" class="block text-sm font-medium text-gray-700 mb-1">Data de Início</label>
+                    <input type="date" name="data_inicial" id="data_inicial" required
+                           class="w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring focus:ring-green-200">
+                </div>
+
+                <div>
+                    <label for="data_final" class="block text-sm font-medium text-gray-700 mb-1">Data de Fim</label>
+                    <input type="date" name="data_final" id="data_final" required
+                           class="w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring focus:ring-green-200">
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white shadow-md rounded-lg p-6 border-l-4 border-purple-500">
+            <h2 class="text-xl font-semibold text-gray-700 mb-4">
+                <i class="fa-solid fa-clock mr-2"></i> Configuração de Horário
+            </h2>
+            <p class="text-sm text-gray-500 mb-6">Selecione o turno, os dias da semana e os horários específicos desta aula.</p>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                
+                <div class="bg-gray-50 p-4 rounded-md">
+                    <h3 class="font-bold text-gray-800 mb-3 border-b pb-2">1. Turno</h3>
+                    <div class="space-y-2">
+                        <label class="flex items-center space-x-3 cursor-pointer">
+                            <input type="radio" name="turno" value="Matutino" checked class="form-radio text-purple-600 h-5 w-5">
+                            <span class="text-gray-700">Matutino</span>
+                        </label>
+                        <label class="flex items-center space-x-3 cursor-pointer">
+                            <input type="radio" name="turno" value="Vespertino" class="form-radio text-purple-600 h-5 w-5">
+                            <span class="text-gray-700">Vespertino</span>
+                        </label>
+                        <label class="flex items-center space-x-3 cursor-pointer">
+                            <input type="radio" name="turno" value="Noturno" class="form-radio text-purple-600 h-5 w-5">
+                            <span class="text-gray-700">Noturno</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="bg-gray-50 p-4 rounded-md">
+                    <h3 class="font-bold text-gray-800 mb-3 border-b pb-2">2. Dias da Semana</h3>
+                    <div class="grid grid-cols-2 gap-2">
+                        <label class="flex items-center space-x-2 cursor-pointer">
+                            <input type="checkbox" name="dias_semana" value="segunda" class="form-checkbox text-purple-600 rounded">
+                            <span>Segunda</span>
+                        </label>
+                        <label class="flex items-center space-x-2 cursor-pointer">
+                            <input type="checkbox" name="dias_semana" value="terca" class="form-checkbox text-purple-600 rounded">
+                            <span>Terça</span>
+                        </label>
+                        <label class="flex items-center space-x-2 cursor-pointer">
+                            <input type="checkbox" name="dias_semana" value="quarta" class="form-checkbox text-purple-600 rounded">
+                            <span>Quarta</span>
+                        </label>
+                        <label class="flex items-center space-x-2 cursor-pointer">
+                            <input type="checkbox" name="dias_semana" value="quinta" class="form-checkbox text-purple-600 rounded">
+                            <span>Quinta</span>
+                        </label>
+                        <label class="flex items-center space-x-2 cursor-pointer">
+                            <input type="checkbox" name="dias_semana" value="sexta" class="form-checkbox text-purple-600 rounded">
+                            <span>Sexta</span>
+                        </label>
+                        <label class="flex items-center space-x-2 cursor-pointer">
+                            <input type="checkbox" name="dias_semana" value="sabado" class="form-checkbox text-purple-600 rounded">
+                            <span>Sábado</span>
+                        </label>
+                        <label class="flex items-center space-x-2 cursor-pointer">
+                            <input type="checkbox" name="dias_semana" value="domingo" class="form-checkbox text-purple-600 rounded">
+                            <span>Domingo</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="bg-gray-50 p-4 rounded-md">
+                    <h3 class="font-bold text-gray-800 mb-3 border-b pb-2">3. Períodos (Horários)</h3>
+                    <div class="space-y-2">
+                        <label class="flex items-center space-x-2 cursor-pointer">
+                            <input type="checkbox" name="periodos" value="primeiro" class="form-checkbox text-purple-600 rounded">
+                            <span>1º Horário</span>
+                        </label>
+                        <label class="flex items-center space-x-2 cursor-pointer">
+                            <input type="checkbox" name="periodos" value="segundo" class="form-checkbox text-purple-600 rounded">
+                            <span>2º Horário</span>
+                        </label>
+                        <label class="flex items-center space-x-2 cursor-pointer">
+                            <input type="checkbox" name="periodos" value="terceiro" class="form-checkbox text-purple-600 rounded">
+                            <span>3º Horário</span>
+                        </label>
+                        <label class="flex items-center space-x-2 cursor-pointer">
+                            <input type="checkbox" name="periodos" value="quarto" class="form-checkbox text-purple-600 rounded">
+                            <span>4º Horário</span>
+                        </label>
+                        <hr class="border-gray-300 my-2">
+                        <label class="flex items-center space-x-2 cursor-pointer">
+                            <input type="checkbox" name="periodos" value="integral" class="form-checkbox text-red-600 rounded">
+                            <span class="font-semibold text-red-600">Integral (Turno todo)</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="mt-6">
+                <label for="descricao" class="block text-sm font-medium text-gray-700 mb-1">Observações da Reserva</label>
+                <textarea name="descricao" id="descricao" rows="2" class="w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring focus:ring-purple-200" placeholder="Ex: Aula extra, Prova, Manutenção..."></textarea>
+            </div>
+        </div>
+
+        <div class="flex justify-end space-x-4 pt-4">
+            <button type="reset" class="px-6 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 transition">
+                Limpar
+            </button>
+            <button type="submit" class="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 shadow-lg transition transform hover:-translate-y-0.5">
+                <i class="fa-solid fa-check mr-2"></i> Salvar Reserva
+            </button>
+        </div>
+    </form>
+</div>
+
+<script>
+    document.getElementById('filtro_bloco').addEventListener('change', function() {
+        const blocoSelecionado = this.value;
+        const opcoesSala = document.getElementById('id_sala').options;
+
+        for (let i = 0; i < opcoesSala.length; i++) {
+            const sala = opcoesSala[i];
+            const blocoSala = sala.getAttribute('data-bloco');
+            
+            if (sala.value === "") continue; // Pula o placeholder
+
+            if (blocoSelecionado === "" || blocoSala === blocoSelecionado) {
+                sala.style.display = 'block';
+            } else {
+                sala.style.display = 'none';
+            }
+        }
+        // Reseta a seleção se a sala atual ficar invisível
+        document.getElementById('id_sala').value = "";
+    });
+</script>
+
+{% endblock %}
