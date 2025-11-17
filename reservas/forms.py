@@ -1,6 +1,5 @@
 from django import forms
 from salas.models import Bloco, Sala, Turma, Curso
-from datetime import date
 
 DIAS_CHOICES = (
     ('segunda', 'Segunda-feira'),
@@ -48,9 +47,6 @@ class VerificacaoReserva(forms.Form):
         data_final = cleaned_data.get('data_final')
 
         if data_inicial and data_final:
-            if data_inicial < date.today():
-                raise forms.ValidationError("A data inicial não pode ser no passado")
-            
             if data_final < data_inicial:
                 raise forms.ValidationError("A data final não pode ser anterior a data inicial")
             

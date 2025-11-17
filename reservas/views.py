@@ -12,23 +12,18 @@ from django.db import transaction
 
 
 def validar_conflito(sala, data_ini, data_fim, turno, dias_selecionados, periodos_selecionados):
-    """
-    Verifica se já existe uma reserva conflitante no banco de dados.
-    Levanta um ValidationError se um conflito for encontrado.
-    """
     
-    # 1. Filtro Macro: Busca reservas na mesma sala, turno e que se sobrepõem nas datas
     conflitos_potenciais = ReservaSala.objects.filter(
         id_sala=sala,
         turno=turno,
         status_reserva=True,
         is_deleted=False,
-        id_reserva__data_inicial__lte=data_fim, # Data de início da reserva existente é <= nova data final
-        id_reserva__data_final__gte=data_ini   # Data final da reserva existente é >= nova data inicial
-    ).select_related('id_reserva') # Otimiza a busca
+        id_reserva__data_inicial__lte=data_fim, 
+        id_reserva__data_final__gte=data_ini 
+    ).select_related('id_reserva')
 
     if not conflitos_potenciais.exists():
-        return True # Ótimo! Nenhum conflito de data/sala/turno.
+        return True
 
     # 2. Filtro Fino: Iterar sobre os conflitos potenciais e checar dias/períodos
     for reserva_sala_existente in conflitos_potenciais:
@@ -38,7 +33,7 @@ def validar_conflito(sala, data_ini, data_fim, turno, dias_selecionados, periodo
         periodos_existentes = Periodo.objects.filter(id_reservasala=reserva_sala_existente).first()
 
         if not dias_existentes or not periodos_existentes:
-            continue # Ignora dados inconsistentes no banco
+            continue
 
         # 3. Checagem de colisão de DIAS
         colisao_dias = False
@@ -52,7 +47,7 @@ def validar_conflito(sala, data_ini, data_fim, turno, dias_selecionados, periodo
             colisao_dias = True
         
         if not colisao_dias:
-            continue # Conflito de data, mas não no mesmo dia. Próximo!
+            continue 
 
         # 4. Checagem de colisão de PERÍODOS (se colidiu o dia)
         colisao_periodos = False
@@ -71,32 +66,28 @@ def validar_conflito(sala, data_ini, data_fim, turno, dias_selecionados, periodo
                 f"em um dia/período sobreposto dentro desse intervalo de datas."
             )
 
-    return True # Passou por todas as checagens
+    return True
 
 
 class ReservarSala(LoginRequiredMixin, View):
 
-    def get(self, request: HttpRequest, bloco_nome: str, sala_id: int) -> HttpResponse:
-        # Busca por ID (PK), que é mais confiável que 'numero_sala'
-        sala = get_object_or_404(Sala, id=sala_id) 
-        bloco = sala.id_bloco # Pega o bloco a partir da sala
+    def get(self, request: HttpRequest, bloco_nome: str, numero_sala: int) -> HttpResponse:
+        sala = get_object_or_404(Sala, numero_sala=numero_sala) 
+        bloco = sala.id_bloco 
         
-        # Validar se o bloco_nome da URL bate (segurança extra)
         if bloco.bloco != bloco_nome:
              return HttpResponse("URL inválida", status=404)
 
         cursos = Curso.objects.all().order_by('nome_curso')
         turmas = Turma.objects.all().order_by('codigo_turma')
 
-        # --- CORREÇÃO 2: Inicializar o formulário no GET ---
-        # Pré-popula o formulário com os dados da sala e bloco
         form = VerificacaoReserva(initial={
             'id_sala': sala.id, 
             'id_bloco': bloco.id
         })
 
         context = {
-            'form': form, # Passa o formulário para o template
+            'form': form,
             'bloco': bloco,
             'sala': sala,
             'cursos': cursos,
@@ -105,9 +96,8 @@ class ReservarSala(LoginRequiredMixin, View):
         return render(request, "reservas/reservarsala.html", context)
 
 
-    def post(self, request: HttpRequest, bloco_nome: str, sala_id: int) -> HttpResponse:
-        # Re-buscar os dados é necessário para renderizar o contexto se o form falhar
-        sala = get_object_or_404(Sala, id=sala_id)
+    def post(self, request: HttpRequest, bloco_nome: str, numero_sala: int) -> HttpResponse:
+        sala = get_object_or_404(Sala, numero_sala=numero_sala)
         bloco = sala.id_bloco
         cursos = Curso.objects.all().order_by('nome_curso')
         turmas = Turma.objects.all().order_by('codigo_turma')
@@ -116,10 +106,6 @@ class ReservarSala(LoginRequiredMixin, View):
         
         if form.is_valid():
             dados = form.cleaned_data
-            
-            # ... (Lógica de validação e salvamento) ...
-            # ... (Seu código de 'dias_selecionados', 'try/except', 'transaction.atomic' está PERFEITO) ...
-            
             dias_selecionados = {dia: True for dia in dados['dias_semana']}
             periodos_selecionados = {p: True for p in dados['periodos']}
 
@@ -179,19 +165,12 @@ class ReservarSala(LoginRequiredMixin, View):
 
             except ValidationError as e:
                 form.add_error(None, e)
-        
-        # --- CORREÇÃO 3: Lógica movida ---
-        # Se o form NÃO for válido (ou se 'validar_conflito' falhar), 
-        # o Django vai pular o IF e vir direto para cá.
-        # Nós apenas precisamos renderizar o template com o 'form' 
-        # que já contém os erros.
 
         context = {
-            'form': form, # 'form' aqui já contém os erros de validação
+            'form': form,
             'sala': sala,
             'bloco': bloco,
             'cursos': cursos,
             'turmas': turmas
         }
-        # Seu template de formulário deve exibir o {{ form.non_field_errors }}
         return render(request, 'reservas/reservarsala.html', context)
