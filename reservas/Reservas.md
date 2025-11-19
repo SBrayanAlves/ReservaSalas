@@ -22,7 +22,7 @@ Gerenciar o agendamento de salas por turno, período e turma, evitando conflitos
     - Data
     - Usuário responsável
 
-- [ ] **Prevenção de Conflitos**
+- [x] **Prevenção de Conflitos**
   - Impedir duas reservas para a mesma sala/turno/período.
 
 - [ ] **Relatórios**
@@ -40,15 +40,15 @@ Gerenciar o agendamento de salas por turno, período e turma, evitando conflitos
 
 ## ⚙️ Tarefas Técnicas
 
-- [ ] Criar modelos `Reserva` e `Turma`.
-- [ ] Implementar `UniqueConstraint` para evitar conflitos.
-- [ ] Criar lógica de validação de horários.
-- [ ] Views para:
+- [x] Criar modelos `Reserva` e `Turma`.
+- [x] Implementar `UniqueConstraint` para evitar conflitos.
+- [x] Criar lógica de validação de horários.
+- [x] Views para:
   - Criar reserva
   - Listar reservas (tabela com filtros)
   - Detalhes da reserva
 - [ ] Filtros por bloco, sala, curso, período.
-- [ ] Relatórios com `reportlab` (PDF).
+- [ ] Relatórios com `weasyprint` (PDF).
 - [ ] Automatizar limpeza anual de dados antigos.
 
 ---
@@ -63,9 +63,9 @@ Tabelas:
 ---
 
 ## 📊 Critérios de Sucesso
-- [ ] Sistema impede conflitos de agendamento.
+- [x] Sistema impede conflitos de agendamento.
 - [ ] Reservas podem ser filtradas por data, sala, curso.
 - [ ] Geração de relatórios funcional.
 - [ ] Reset de semestre automatizado.
-- [ ] Interface clara e rápida para Tatiana.
+- [x] Interface clara e rápida para Tatiana.
 

@@ -1,33 +1,60 @@
 from django.shortcuts import render
 from django.views.generic import ListView
 from django.contrib.auth.mixins import LoginRequiredMixin
-from salas.models import Sala, Bloco, Curso, Turma # Importe tudo
-from reservas.models import DiaSemana, ReservaSala # Importe o necessário de reservas
-
-# Create your views here.
+from django.db.models import Q # Importe Q para consultas complexas (OR)
+from salas.models import Sala, Bloco, Curso, Turma 
 
 class ListarSalas(LoginRequiredMixin, ListView):
     model = Sala
     template_name = "salas/listarsalas.html"
-    context_object_name = 'salas' # Definir aqui é mais limpo
+    context_object_name = 'salas' # Esta é a variável que vai para a TABELA
 
     def get_queryset(self):
-        # Otimização: Usa select_related para buscar o Bloco junto com a Sala
-        # Isso evita o problema N+1
-        return Sala.objects.filter(is_deleted=False).select_related('id_bloco')
+        qs = Sala.objects.filter(is_deleted=False).select_related('id_bloco')
+
+        bloco = self.request.GET.get('bloco')
+        andar = self.request.GET.get('andar')
+        numero = self.request.GET.get('numero')
+        capacidade = self.request.GET.get('capacidade')
+        tv = self.request.GET.get('tv')
+
+        if bloco:
+            qs = qs.filter(id_bloco__bloco=bloco)
+
+        if andar:
+            qs = qs.filter(andar=andar)
+
+        if numero:
+            qs = qs.filter(numero_sala=numero)
+
+        if capacidade:
+            qs = qs.filter(capacidade=capacidade)
+
+        if tv == 'sim':
+            # Exclui onde é nulo OU onde é vazio
+            qs = qs.exclude(tv_tamanho__isnull=True).exclude(tv_tamanho='')
+        elif tv == 'nao':
+            # Pega onde é nulo OU onde é vazio
+            qs = qs.filter(Q(tv_tamanho__isnull=True) | Q(tv_tamanho=''))
+
+        return qs
 
     def get_context_data(self, **kwargs):
-        # Chama a implementação base primeiro para pegar o 'salas'
         context = super().get_context_data(**kwargs)
         
-        # Adiciona o contexto extra para os filtros
+        # Filtros para os Dropdowns
         context['blocos'] = Bloco.objects.filter(ativo=True).order_by('bloco')
-        context['cursos'] = Curso.objects.filter(is_deleted=False).order_by('nome_curso')
-        context['turmas'] = Turma.objects.filter(is_deleted=False).order_by('codigo_turma')
+        context['andares'] = Sala.objects.values_list("andar", flat=True).distinct().order_by('andar')
         
-        # Você também tinha filtros para dias e turnos:
-        # (Idealmente, você definiria isso em um lugar, mas para o filtro:)
-        context['diassemanas'] = ['Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado', 'Domingo']
-        context['reservas'] = ReservaSala.objects.distinct('turno').values_list('turno', flat=True)
+        # MUDEI O NOME AQUI DE 'salas' PARA 'numeros_salas'
+        context['numeros_salas'] = Sala.objects.values_list("numero_sala", flat=True).distinct().order_by('numero_sala')
+        
+        context['capacidades'] = Sala.objects.values_list("capacidade", flat=True).distinct().order_by('capacidade')
+        
+        # Re-ativei a lista de TV
+        context['tvs'] = [
+            {"value": "sim", "label": "Com TV"},
+            {"value": "nao", "label": "Sem TV"},
+        ]
 
         return context
