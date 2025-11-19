@@ -90,7 +90,8 @@
             </li>
             {% endif %}
             <li>
-              <a href="" class="flex items-center space-x-3 p-3 rounded-lg text-gray-700 hover:bg-gray-100">
+              <a href="{% url "listarsalas" %}" class="flex items-center space-x-3 p-3 rounded-lg text-gray-700 hover:bg-gray-100
+              {% if request.resolver_match.url_name == "reservarsala" %}rounded-lg bg-blue-50 text-blue-700 border-l-4 border-blue-600{% endif %}">
                 <i class="fas fa-calendar-alt w-5 text-center"></i>
                 <span>Reservar Salas</span>
               </a>
@@ -103,7 +104,8 @@
               </a>
             </li>
             <li>
-              <a href="{% url "perfil" %}" class="flex items-center space-x-3 p-3 rounded-lg text-gray-700 hover:bg-gray-100">
+              <a href="{% url "perfil" %}" class="flex items-center space-x-3 p-3 rounded-lg text-gray-700 hover:bg-gray-100
+              {% if request.resolver_match.url_name == "perfil" %}rounded-lg bg-blue-50 text-blue-700 border-l-4 border-blue-600{% endif %}">
                 <i class="fas fa-user-cog w-5 text-center"></i>
                 <span>Perfil</span>
               </a>

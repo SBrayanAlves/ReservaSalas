@@ -2,7 +2,7 @@ from django.contrib import messages
 from django.forms import ValidationError
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import redirect, render, get_object_or_404
-from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from django.views import View
 from salas.models import Bloco, Sala, Curso, Turma
 from .models import Reserva, ReservaSala, DiaSemana, Periodo
@@ -69,14 +69,18 @@ def validar_conflito(sala, data_ini, data_fim, turno, dias_selecionados, periodo
     return True
 
 
-class ReservarSala(LoginRequiredMixin, View):
+class ReservarSala(LoginRequiredMixin, PermissionRequiredMixin, View):
+    permission_required = 'reservas.add_reserva'
 
     def get(self, request: HttpRequest, bloco_nome: str, numero_sala: int) -> HttpResponse:
-        sala = get_object_or_404(Sala, numero_sala=numero_sala) 
-        bloco = sala.id_bloco 
+        sala = get_object_or_404(
+            Sala,
+            numero_sala=numero_sala,
+            id_bloco__bloco=bloco_nome,
+            is_deleted=False
+        )
         
-        if bloco.bloco != bloco_nome:
-             return HttpResponse("URL inválida", status=404)
+        bloco = sala.id_bloco
 
         cursos = Curso.objects.all().order_by('nome_curso')
         turmas = Turma.objects.all().order_by('codigo_turma')
@@ -97,7 +101,14 @@ class ReservarSala(LoginRequiredMixin, View):
 
 
     def post(self, request: HttpRequest, bloco_nome: str, numero_sala: int) -> HttpResponse:
-        sala = get_object_or_404(Sala, numero_sala=numero_sala)
+        sala = get_object_or_404(
+            Sala,
+            numero_sala=numero_sala,
+            id_bloco__bloco=bloco_nome,
+            is_deleted=False
+            )
+
+
         bloco = sala.id_bloco
         cursos = Curso.objects.all().order_by('nome_curso')
         turmas = Turma.objects.all().order_by('codigo_turma')
@@ -174,3 +185,9 @@ class ReservarSala(LoginRequiredMixin, View):
             'turmas': turmas
         }
         return render(request, 'reservas/reservarsala.html', context)
+    
+class Relatorio(LoginRequiredMixin, PermissionRequiredMixin ,View):
+    permission_required = 'reservas.add'
+
+    def get(self, request:HttpRequest)->HttpResponse:
+        return render(request, 'formulario.html')

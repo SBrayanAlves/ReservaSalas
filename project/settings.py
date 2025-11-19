@@ -140,6 +140,12 @@ AUTH_USER_MODEL = 'usuarios.Usuario'
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 JAZZMIN_SETTINGS = {
+    "site_title": "Reserva de Salas",
+    "site_header": "Reserva de Salas",
+    "welcome_sign": "Bem-vindo ao Sistema!",
+    "site_logo": "images/Unieuro.png",
+    "login_logo": "images/Unieuro.png",
+    "site_brand": "Reserva de Salas",
     "custom_links": {
         "usuarios": [
             {
