@@ -3,7 +3,7 @@ from django.views import View
 from django.http import HttpRequest, HttpResponse
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from salas.models import Bloco, Sala, Curso, Turma
-from reservas.models import Reserva, ReservaSala, Periodo, DiaSemana
+from reservas.models import Reserva, ReservaSala
 from salas.forms import ValidacaoSala
 from usuarios.forms import ValidacaoUsuario
 # Create your views here.
@@ -16,17 +16,13 @@ class Home(LoginRequiredMixin, View):
         salas = Sala.objects.filter(ativo=True)
         cursos = Curso.objects.filter()
         turmas = Turma.objects.filter()
-        diassemana = DiaSemana.objects.filter()
         turnos = ReservaSala.objects.filter()
-        periodos = Periodo.objects.filter()
         return render(request, 'home/home.html', {
             'salas': salas, 
             'blocos': blocos, 
             'cursos': cursos, 
             'turmas': turmas,
-            'diassemana': diassemana,
             'turnos': turnos,
-            'periodos': periodos
             })
     
 
