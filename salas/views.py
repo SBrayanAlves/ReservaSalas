@@ -33,7 +33,7 @@ class ListarSalas(LoginRequiredMixin, ListView):
         if tv == 'sim':
             # Exclui onde é nulo OU onde é vazio
             qs = qs.exclude(tv_tamanho__isnull=True).exclude(tv_tamanho='')
-        elif tv == 'nao':
+        elif tv == '-':
             # Pega onde é nulo OU onde é vazio
             qs = qs.filter(Q(tv_tamanho__isnull=True) | Q(tv_tamanho=''))
 
@@ -54,7 +54,7 @@ class ListarSalas(LoginRequiredMixin, ListView):
         # Re-ativei a lista de TV
         context['tvs'] = [
             {"value": "sim", "label": "Com TV"},
-            {"value": "nao", "label": "Sem TV"},
+            {"value": "-", "label": "Sem TV"},
         ]
 
         return context
