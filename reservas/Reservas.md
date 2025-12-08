@@ -7,7 +7,7 @@ Gerenciar o agendamento de salas por turno, período e turma, evitando conflitos
 
 ## ✅ Requisitos Funcionais
 
-- [ ] **Cadastro de Reservas**
+- [x] **Cadastro de Reservas**
   - Cada sala pode ter até **4 períodos por turno**.
   - Períodos:
     - 1º: 08h00 - 08h50  
@@ -27,14 +27,12 @@ Gerenciar o agendamento de salas por turno, período e turma, evitando conflitos
 
 - [ ] **Relatórios**
   - Gerar relatórios:
-    - Mensal
     - Semestral
-    - Personalizado (curso/bloco/período)
   - Exportar em PDF.
 
 - [ ] **Histórico de Reservas**
   - Armazenar registros por até 1 ano.
-  - Permitir reset a cada semestre.
+  - Permitir reset mediante a retirada do relatório a cada semestre.
 
 ---
 
@@ -47,7 +45,7 @@ Gerenciar o agendamento de salas por turno, período e turma, evitando conflitos
   - Criar reserva
   - Listar reservas (tabela com filtros)
   - Detalhes da reserva
-- [ ] Filtros por bloco, sala, curso, período.
+- [ ] Filtros por bloco, andar, curso, data inicial, capacidade.
 - [ ] Relatórios com `weasyprint` (PDF).
 - [ ] Automatizar limpeza anual de dados antigos.
 

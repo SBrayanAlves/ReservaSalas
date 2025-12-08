@@ -1,13 +1,13 @@
 from django.shortcuts import render
 from django.views.generic import ListView
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.db.models import Q # Importe Q para consultas complexas (OR)
+from django.db.models import Q
 from salas.models import Sala, Bloco, Curso, Turma 
 
 class ListarSalas(LoginRequiredMixin, ListView):
     model = Sala
     template_name = "salas/listarsalas.html"
-    context_object_name = 'salas' # Esta é a variável que vai para a TABELA
+    context_object_name = 'salas'
 
     def get_queryset(self):
         qs = Sala.objects.filter(is_deleted=False).select_related('id_bloco')
@@ -31,10 +31,8 @@ class ListarSalas(LoginRequiredMixin, ListView):
             qs = qs.filter(capacidade=capacidade)
 
         if tv == 'sim':
-            # Exclui onde é nulo OU onde é vazio
             qs = qs.exclude(tv_tamanho__isnull=True).exclude(tv_tamanho='')
-        elif tv == 'nao':
-            # Pega onde é nulo OU onde é vazio
+        elif tv == '-':
             qs = qs.filter(Q(tv_tamanho__isnull=True) | Q(tv_tamanho=''))
 
         return qs
@@ -42,19 +40,13 @@ class ListarSalas(LoginRequiredMixin, ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         
-        # Filtros para os Dropdowns
         context['blocos'] = Bloco.objects.filter(ativo=True).order_by('bloco')
         context['andares'] = Sala.objects.values_list("andar", flat=True).distinct().order_by('andar')
-        
-        # MUDEI O NOME AQUI DE 'salas' PARA 'numeros_salas'
         context['numeros_salas'] = Sala.objects.values_list("numero_sala", flat=True).distinct().order_by('numero_sala')
-        
         context['capacidades'] = Sala.objects.values_list("capacidade", flat=True).distinct().order_by('capacidade')
-        
-        # Re-ativei a lista de TV
         context['tvs'] = [
             {"value": "sim", "label": "Com TV"},
-            {"value": "nao", "label": "Sem TV"},
+            {"value": "-", "label": "Sem TV"},
         ]
 
         return context

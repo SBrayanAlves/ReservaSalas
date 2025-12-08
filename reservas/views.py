@@ -5,69 +5,10 @@ from django.shortcuts import redirect, render, get_object_or_404
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from django.views import View
 from salas.models import Bloco, Sala, Curso, Turma
-from .models import Reserva, ReservaSala, DiaSemana, Periodo
+from .models import Reserva, ReservaSala, HorarioOcupado
 from .forms import VerificacaoReserva
 from django.db import transaction
-
-
-
-def validar_conflito(sala, data_ini, data_fim, turno, dias_selecionados, periodos_selecionados):
-    
-    conflitos_potenciais = ReservaSala.objects.filter(
-        id_sala=sala,
-        turno=turno,
-        status_reserva=True,
-        is_deleted=False,
-        id_reserva__data_inicial__lte=data_fim, 
-        id_reserva__data_final__gte=data_ini 
-    ).select_related('id_reserva')
-
-    if not conflitos_potenciais.exists():
-        return True
-
-    # 2. Filtro Fino: Iterar sobre os conflitos potenciais e checar dias/períodos
-    for reserva_sala_existente in conflitos_potenciais:
-        
-        # Busca os dias e períodos da reserva existente
-        dias_existentes = DiaSemana.objects.filter(id_reservasala=reserva_sala_existente).first()
-        periodos_existentes = Periodo.objects.filter(id_reservasala=reserva_sala_existente).first()
-
-        if not dias_existentes or not periodos_existentes:
-            continue
-
-        # 3. Checagem de colisão de DIAS
-        colisao_dias = False
-        if (dias_selecionados.get('segunda') and dias_existentes.segunda) or \
-           (dias_selecionados.get('terca') and dias_existentes.terca) or \
-           (dias_selecionados.get('quarta') and dias_existentes.quarta) or \
-           (dias_selecionados.get('quinta') and dias_existentes.quinta) or \
-           (dias_selecionados.get('sexta') and dias_existentes.sexta) or \
-           (dias_selecionados.get('sabado') and dias_existentes.sabado) or \
-           (dias_selecionados.get('domingo') and dias_existentes.domingo):
-            colisao_dias = True
-        
-        if not colisao_dias:
-            continue 
-
-        # 4. Checagem de colisão de PERÍODOS (se colidiu o dia)
-        colisao_periodos = False
-        if (periodos_selecionados.get('primeiro') and periodos_existentes.primeiro) or \
-           (periodos_selecionados.get('segundo') and periodos_existentes.segundo) or \
-           (periodos_selecionados.get('terceiro') and periodos_existentes.terceiro) or \
-           (periodos_selecionados.get('quarto') and periodos_existentes.quarto) or \
-           (periodos_selecionados.get('integral') and periodos_existentes.integral):
-            colisao_periodos = True
-
-        # 5. CONFLITO ENCONTRADO!
-        if colisao_periodos:
-            turma_conflito = reserva_sala_existente.id_reserva.codigo_turma
-            raise ValidationError(
-                f"CONFLITO: Esta sala já está reservada para a turma {turma_conflito} "
-                f"em um dia/período sobreposto dentro desse intervalo de datas."
-            )
-
-    return True
-
+from .services import validar_conflito
 
 class ReservarSala(LoginRequiredMixin, PermissionRequiredMixin, View):
     permission_required = 'reservas.add_reserva'
@@ -117,65 +58,71 @@ class ReservarSala(LoginRequiredMixin, PermissionRequiredMixin, View):
         
         if form.is_valid():
             dados = form.cleaned_data
-            dias_selecionados = {dia: True for dia in dados['dias_semana']}
-            periodos_selecionados = {p: True for p in dados['periodos']}
 
-            try:
-                validar_conflito(
-                    sala=dados['id_sala'],
-                    data_ini=dados['data_inicial'],
-                    data_fim=dados['data_final'],
-                    turno=dados['turno'],
-                    dias_selecionados=dias_selecionados,
-                    periodos_selecionados=periodos_selecionados
-                )
+            dias_form =  dados['dias_semana']
+            periodos_form = dados['periodos']
 
-                with transaction.atomic():
-                    turma_selecionada = dados['id_turma']
-                    
-                    nova_reserva = Reserva.objects.create(
-                        criador_por=request.user,
-                        id_curso=dados['id_curso'],
-                        id_turma=turma_selecionada,
-                        codigo_turma=turma_selecionada.codigo_turma,
-                        data_inicial=dados['data_inicial'],
-                        data_final=dados['data_final']
-                    )
-                    
-                    nova_reserva_sala = ReservaSala.objects.create(
-                        id_reserva=nova_reserva,
-                        id_sala=dados['id_sala'],
-                        turno=dados['turno'],
-                        responsavel=dados['professor'],
-                        descricao_reserva=dados['descricao']
-                    )
-                    
-                    periodo_obj = Periodo.objects.create(
-                        id_reservasala=nova_reserva_sala,
-                        primeiro='primeiro' in dados['periodos'],
-                        segundo='segundo' in dados['periodos'],
-                        terceiro='terceiro' in dados['periodos'],
-                        quarto='quarto' in dados['periodos'],
-                        integral='integral' in dados['periodos']
-                    )
-                    
-                    DiaSemana.objects.create(
-                        id_reservasala=nova_reserva_sala,
-                        id_periodo=periodo_obj,
-                        segunda='segunda' in dados['dias_semana'],
-                        terca='terca' in dados['dias_semana'],
-                        quarta='quarta' in dados['dias_semana'],
-                        quinta='quinta' in dados['dias_semana'],
-                        sexta='sexta' in dados['dias_semana'],
-                        sabado='sabado' in dados['dias_semana'],
-                        domingo='domingo' in dados['dias_semana']
-                    )
+            periodos_ids = []
+            if 'integral' in periodos_form:
+                periodos_ids = [1, 2, 3, 4]
+            else:
+                mapa_periodos = {'primeiro': 1, 'segundo': 2, 'terceiro': 3, 'quarto': 4}
+                for p in periodos_form:
+                    if p in mapa_periodos:
+                        periodos_ids.append(mapa_periodos[p])
                 
-                messages.success(request, 'Reserva criada com sucesso!')
-                return redirect('listarsalas')
+            mapa_dias = {'segunda': 0, 'terca': 1, 'quarta': 2, 'quinta': 3, 'sexta': 4, 'sabado': 5, 'domingo': 6}
+            dias_ids = [mapa_dias[d] for d in dias_form if d in mapa_dias]
 
-            except ValidationError as e:
-                form.add_error(None, e)
+            erro_conflito = validar_conflito(
+                sala_id=sala.id,
+                turma_id=dados['id_turma'],
+                data_ini=dados['data_inicial'],
+                data_fim=dados['data_final'],
+                listar_dias=dias_ids,
+                listar_periodos=periodos_ids
+            )
+
+            if erro_conflito:
+                messages.error(request, erro_conflito)
+                
+            else:
+                try:
+                    with transaction.atomic():
+                        nova_reserva = Reserva.objects.create(
+                            criador_por=request.user,
+                            id_curso=dados['id_curso'],
+                            id_turma=dados['id_turma'],
+                            codigo_turma=dados['id_turma'].codigo_turma,
+                            data_inicial=dados['data_inicial'],
+                            data_final=dados['data_final']
+                        )
+
+                        nova_reserva_sala = ReservaSala.objects.create(
+                            id_reserva=nova_reserva,
+                            id_sala=sala,
+                            turno=dados['turno'],
+                            responsavel=dados['professor'],
+                            descricao_reserva=dados['descricao']
+                        )
+
+                        lista_objetos_horario = []
+                        for d in dias_ids:
+                            for p in periodos_ids:
+                                lista_objetos_horario.append(
+                                    HorarioOcupado(
+                                        reserva_sala=nova_reserva_sala,
+                                        dia_semana=d,
+                                        periodo=p
+                                    )
+                                )
+                        HorarioOcupado.objects.bulk_create(lista_objetos_horario)
+                        
+                    messages.success(request, 'Reserva realizada com sucesso!')
+                    return redirect('home')
+                
+                except Exception as e:
+                    messages.error(request, f'Erro interno ao salvar: {str(e)}')
 
         context = {
             'form': form,
@@ -185,6 +132,137 @@ class ReservarSala(LoginRequiredMixin, PermissionRequiredMixin, View):
             'turmas': turmas
         }
         return render(request, 'reservas/reservarsala.html', context)
+    
+class EditarReserva(LoginRequiredMixin, PermissionRequiredMixin, View):
+    permission_required = 'reservas.add_reserva'
+
+    def get(self, reserva_id, request:HttpRequest)->HttpResponse:
+        reserva = get_object_or_404(Reserva, pk=reserva_id, is_deleted=False)
+        reserva_sala = get_object_or_404(ReservaSala, id_reserva=reserva)
+
+        horarios = reserva_sala.horario.all()
+        dias_salvos = set(h.dia_semana for h in horarios)
+        periodos_salvos = set(h.periodos for h in horarios)
+
+        mapa_dias_rev = {0: 'segunda', 1: 'terca', 2: 'quarta', 3: 'quinta', 4: 'sexta', 5: 'sabado', 6: 'domingo'}
+        mapa_periodos_rev = {1: 'primeiro', 2: 'segundo', 3: 'terceiro', 4: 'quarto'}
+
+        initial_dias = [mapa_dias_rev[d] for d in dias_salvos if d in mapa_dias_rev]
+
+        if {1, 2, 3, 4}.issubset(periodos_salvos):
+            initial_periodos = ['integral']
+        else:
+            initial_periodos = [mapa_periodos_rev[p] for p in periodos_salvos if p in mapa_periodos_rev]
+
+        form = VerificacaoReserva(initial={
+            'id_curso': reserva.id_curso,
+            'id_turma': reserva.id_turma,
+            'professor': reserva_sala.responsavel,
+            'id_bloco': reserva_sala.id_sala.id_bloco,
+            'id_sala': reserva_sala.id_sala,
+            'data_inicial': reserva.data_inicial,
+            'data_final': reserva.data_final,
+            'turno': reserva_sala.turno,
+            'dias_semana': initial_dias,
+            'periodos': initial_periodos,
+            'descricao': reserva_sala.descricao_reserva
+        })
+
+        context = {
+            'form': form,
+            'sala': reserva_sala.id_sala,
+            'bloco': reserva_sala.id_sala.id_bloco,
+            'cursos': Curso.objects.all(),
+            'turmas': Turma.objects.all(),
+            'edicao': True # Flag para mudar título no template se quiser
+        }
+        return render(request, "reservas/reservarsala.html", context)
+    
+    def post(self, reserva_id, request:HttpRequest)->HttpResponse:
+        reserva = get_object_or_404(Reserva, pk=reserva_id)
+        reserva_sala = get_object_or_404(ReservaSala, id_reserva=reserva)
+        sala = reserva_sala.id_sala
+
+        cursos = Curso.objects.all()
+        turmas = Turma.objects.all()
+
+        form = VerificacaoReserva(request.POST)
+
+        if form.is_valid():
+            dados = form.cleaned_data
+
+            dias_form =  dados['dias_semana']
+            periodos_form = dados['periodos']
+
+            periodos_ids = []
+            if 'integral' in periodos_form:
+                periodos_ids = [1, 2, 3, 4]
+            else:
+                mapa_periodos = {'primeiro': 1, 'segundo': 2, 'terceiro': 3, 'quarto': 4}
+                for p in periodos_form:
+                    if p in mapa_periodos:
+                        periodos_ids.append(mapa_periodos[p])
+                
+            mapa_dias = {'segunda': 0, 'terca': 1, 'quarta': 2, 'quinta': 3, 'sexta': 4, 'sabado': 5, 'domingo': 6}
+            dias_ids = [mapa_dias[d] for d in dias_form if d in mapa_dias]
+
+            erro_conflito = validar_conflito(
+                sala_id=sala.id,
+                turma_id=dados['id_turma'],
+                data_ini=dados['data_inicial'],
+                data_fim=dados['data_final'],
+                listar_dias=dias_ids,
+                listar_periodos=periodos_ids,
+                ignorar_reserva_id=reserva.id
+            )
+
+            if erro_conflito:
+                messages.error(request, erro_conflito)
+            else:
+                try:
+                    with transaction.atomic():
+                        reserva.id_curso = dados['id_curso']
+                        reserva.id_turma = dados['id_turma']
+                        reserva.codigo_turma = dados['id_turma'].codigo_turma
+                        reserva.data_inicial = dados['data_inicial']
+                        reserva.data_final = dados['data_final']
+                        reserva.save()
+
+                        reserva_sala.turno = dados['turno']
+                        reserva_sala.responsavel = dados['professor']
+                        reserva_sala.descricao_reserva = dados['descricao']
+                        reserva_sala.save()
+
+                        reserva_sala.horarios.all().delete()
+
+                        lista_objetos_horario = []
+                        for d in dias_ids:
+                            for p in periodos_ids:
+                                lista_objetos_horario.append(
+                                    HorarioOcupado(
+                                        reserva_sala=reserva_sala,
+                                        dia_semana=d,
+                                        periodo=p
+                                    )
+                                )
+                        HorarioOcupado.objects.bulk_create(lista_objetos_horario)
+
+                    messages.success(request, 'Reserva atualizada com sucesso!')
+                    return redirect('home')
+
+                except Exception as e:
+                    messages.error(request, f"Erro ao atualizar: {e}")
+
+        context = {
+            'form': form,
+            'sala': sala,
+            'bloco': sala.id_bloco,
+            'cursos': cursos,
+            'turmas': turmas,
+            'edicao': True
+        }
+        return render(request, 'reservas/reservarsala.html', context)
+
     
 class Relatorio(LoginRequiredMixin, PermissionRequiredMixin ,View):
     permission_required = 'reservas.add'

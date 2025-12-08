@@ -30,7 +30,7 @@ class Sala(models.Model):
     andar = models.CharField(max_length=50)
     numero_sala = models.IntegerField(verbose_name='Número da sala')
     capacidade = models.IntegerField()
-    tv_tamanho = models.CharField(max_length=5, verbose_name='Tamanho da TV')
+    tv_tamanho = models.CharField(max_length=5, null=True, blank=True, verbose_name='Tamanho da TV')
     data_show = models.BooleanField(default=False)
     ativo = models.BooleanField(default=True)
     motivo_inativo = models.TextField(blank=True, null=True)

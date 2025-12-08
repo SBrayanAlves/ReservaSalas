@@ -42,27 +42,26 @@ class ReservaSala(models.Model):
     def __str__(self):
         return f"Reserva Sala {self.id_sala} ({self.turno})"
 
-class Periodo(models.Model):
-    id_reservasala = models.ForeignKey(ReservaSala, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name='Sala reservada')
-    primeiro = models.BooleanField(default=False)
-    segundo = models.BooleanField(default=False)
-    terceiro = models.BooleanField(default=False)
-    quarto = models.BooleanField(default=False)
-    integral = models.BooleanField(default=False)
-    created_at = models.DateTimeField(auto_now_add=True)
-    deleted_at = models.DateTimeField(blank=True, null=True)
-    is_deleted = models.BooleanField(default=False)
+class HorarioOcupado(models.Model):
+    
+    DIAS_CHOICES = (
+        (0, 'Segunda'), (1, 'Terça'), (2, 'Quarta'),
+        (3, 'Quinta'), (4, 'Sexta'), (5, 'Sábado'), (6, 'Domingo')
+    )
+    
+    PERIODOS_CHOICES = (
+        (1, '1º Período'),
+        (2, '2º Período'),
+        (3, '3º Período'),
+        (4, '4º Período'),
+    )
+    reserva_sala = models.ForeignKey(ReservaSala, on_delete=models.CASCADE, related_name='horarios')
+    
+    dia_semana = models.IntegerField(choices=DIAS_CHOICES)
+    periodo = models.IntegerField(choices=PERIODOS_CHOICES)
+    
+    class Meta:
+        unique_together = ('reserva_sala', 'dia_semana', 'periodo')
 
-class DiaSemana(models.Model):
-    id_reservasala = models.ForeignKey(ReservaSala, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name='Sala reservada')
-    id_periodo = models.ForeignKey(Periodo, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name='Período')
-    segunda = models.BooleanField(default=False, verbose_name='Segunda-feira')
-    terca = models.BooleanField(default=False, verbose_name='Terça-feira')
-    quarta = models.BooleanField(default=False, verbose_name='Quarta-feira')
-    quinta = models.BooleanField(default=False, verbose_name='Quinta-feira')
-    sexta = models.BooleanField(default=False, verbose_name='Sexta-feira')
-    sabado = models.BooleanField(default=False, verbose_name='Sábado')
-    domingo = models.BooleanField(default=False, verbose_name='Domingo')
-    created_at = models.DateTimeField(auto_now_add=True)
-    deleted_at = models.DateTimeField(blank=True, null=True)
-    is_deleted = models.BooleanField(default=False)
+    def __str__(self):
+        return f"{self.get_dia_semana_display()} - {self.get_periodo_display()}"
