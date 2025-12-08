@@ -1,131 +1,102 @@
-# Reserva de Salas - Unieuro
+# 📅 Manual do Usuário: Sistema de Reserva de Salas - Unieuro
 
-Manual do Usuário
+**Versão:** 1.0  
+**Última atualização:** [Inserir Data]
 
 ## 1. Introdução
 
-O sistema Reserva de Salas - Unieuro permite que usuários autorizados
-visualizem, reservem e administrem salas da instituição de forma simples
-e segura.\
-Cada usuário possui permissões específicas.
+Bem-vindo ao **Sistema de Reserva de Salas da Unieuro**. Esta plataforma foi desenvolvida para facilitar o gerenciamento de espaços da instituição, permitindo que colaboradores visualizem a disponibilidade e realizem agendamentos de forma simples, centralizada e segura.
 
-## 2. Tipos de Usuário
+## 2. Perfis de Acesso
 
-### Administradores
+O sistema divide os usuários em dois grupos principais para garantir a segurança e a organização das reservas.
 
--   Diretor
--   Assessor Administrativo
--   NTI
+| Perfil | Quem são? | Permissões |
+| :--- | :--- | :--- |
+| **🛡️ Administrador** | Diretor, Assessor Administrativo, NTI | • Visualizar agenda completa<br>• Criar e cancelar reservas<br>• Cadastrar novas salas<br>• Gerenciar usuários |
+| **👀 Visualizador** | Coordenador, Secretário, NAPI, Manutenção | • Visualizar agenda completa<br>• Consultar detalhes das reservas<br>*(Não podem criar ou alterar reservas)* |
 
-### Usuários com Acesso Somente à Visualização
+---
 
--   Coordenador
--   Secretário
--   NAPI
--   Manutenção
+## 3. Conhecendo o Sistema (Estrutura)
 
-## 3. Estrutura das Páginas
+### 🔐 Módulo de Acesso e Segurança
 
-### 3.1 Página de Login
+* **Login:** Tela inicial para acesso via matrícula e senha.
+* **Recuperação de Senha:** Fluxo seguro para redefinição de credenciais:
+    1.  Envio de e-mail institucional.
+    2.  Validação via código de segurança.
+    3.  Definição de nova senha.
+* **Logout:** Encerra a sessão e retorna à tela de login.
 
-Permite que qualquer usuário cadastrado acesse o sistema inserindo
-matrícula e senha.
+### 🏠 Painel Principal (Home)
 
-### 3.2 Página de Enviar E-mail (Redefinição de Senha)
+A tela principal é o coração do sistema.
+* **Calendário/Listagem:** Exibe todas as reservas ativas.
+* **Filtros:** Permite buscar reservas por data ou sala específica.
+* **Status:** Diferenciação visual para salas livres e ocupadas.
 
-Usuário informa o e-mail institucional para receber um código de verificação.
+### 📝 Módulo de Reservas
 
-### 3.3 Página de Confirmação de Código
+* **Exibir Salas:** Catálogo de todas as salas disponíveis na instituição.
+* **Formulário de Reserva:** Onde o Administrador define a data, horário e finalidade da utilização da sala selecionada.
 
-O usuário informa o código recebido para continuar o processo de
-redefinição de senha.
+### ⚙️ Módulo Administrativo (Restrito)
 
-### 3.4 Página de Nova Senha
+Disponível apenas para o perfil **Administrador**:
+* **Cadastro Geral:** Páginas para registrar novas **Salas** (bloco, número, capacidade) e novos **Usuários**.
+* **Painel Admin (Django):** Área técnica para manutenção avançada de dados (acesso restrito ao NTI).
 
-O usuário define uma nova senha após validar o código.
+### 👤 Perfil do Usuário
+Área para atualização de dados cadastrais do próprio usuário (Nome, Telefone e Data de Nascimento).
 
-### 3.5 Página Home
+---
 
-Exibe **todas as reservas feitas**, com filtros e listagem completa.\
-Usuários apenas visualizadores enxergam todas as reservas, porém não
-criam.
+## 4. Guia Passo a Passo
 
-### 3.6 Página de Cadastro
+### 4.1 Como Acessar o Sistema
+1.  Acesse o endereço web do sistema.
+2.  Insira sua **matrícula** e **senha**.
+3.  Clique no botão **Entrar**.
 
-Disponível apenas para administradores.\
-Permite cadastrar **salas** e **usuários**.
+### 4.2 Esqueci Minha Senha
+1.  Na tela de login, clique no link **"Esqueci a senha"**.
+2.  Digite seu e-mail institucional e confirme.
+3.  Verifique sua caixa de entrada e copie o **código de verificação**.
+4.  Insira o código no sistema e crie sua nova senha.
 
-### 3.7 Página Exibir Salas
+### 4.3 Como Reservar uma Sala (Apenas Administradores)
+1.  No menu, clique em **"Exibir Salas"**.
+2.  Localize a sala desejada na lista e clique em **"Selecionar"**.
+3.  Preencha o formulário com data, horário de início/fim e motivo.
+4.  Clique em **"Salvar Reserva"**.
+    > **Nota:** O sistema alertará caso já exista uma reserva para o horário escolhido (conflito de horário).
 
-Lista todas as salas já cadastradas para permitir a seleção para
-reserva.
+### 4.4 Cadastros Administrativos
+1.  No menu, acesse a área de **Cadastro**.
+2.  Selecione a opção desejada: **Cadastrar Sala** ou **Cadastrar Usuário**.
+3.  Preencha todos os campos obrigatórios.
+4.  Clique em **Salvar** para efetivar o registro.
 
-### 3.8 Página de Reserva de Sala
+---
 
-Após selecionar uma sala, o usuário é levado a um formulário para
-reservar a sala escolhida.
+## 5. Dúvidas Frequentes e Soluções
 
-### 3.9 Página de Perfil
+| Problema | Causa Provável | Solução |
+| :--- | :--- | :--- |
+| **"Usuário ou senha inválidos"** | Erro de digitação ou senha antiga. | Utilize a opção "Esqueci a senha" para redefinir seu acesso. |
+| **Botão "Salvar" não funciona** | Campos obrigatórios em branco. | Verifique se todos os campos marcados com um asterisco (*) foram preenchidos. |
+| **Não consigo reservar** | Perfil de usuário sem permissão. | Verifique se seu perfil é "Visualizador". Apenas Administradores podem criar reservas. |
 
-Permite alterar dados pessoais:\
-- Nome\
-- Telefone\
-- Data de nascimento
+---
 
-### 3.10 Página de Administração
+## 6. Suporte
 
-Redireciona para o painel administrativo do Django.
+Encontrou um erro não listado ou precisa de ajuda técnica?
 
-### 3.11 Logout
+📞 **Entre em contato com o NTI**
+* **Ramal:** [Inserir Ramal]
+* **E-mail:** [Inserir Email]
 
-Sai da conta e retorna para a página de login.
-
-------------------------------------------------------------------------
-
-## 4. Fluxos de Uso
-
-### 4.1 Como Fazer Login
-
-1.  Acesse a página inicial.\
-2.  Insira seu matrícula e senha.\
-3.  Clique em **Entrar**.
-
-### 4.2 Como Redefinir a Senha
-
-1.  Na página de login, clique em **Esqueci a senha**.\
-2.  Informe seu e-mail.\
-3.  Insira o código recebido.\
-4.  Defina uma nova senha.
-
-### 4.3 Como Reservar uma Sala
-
-1.  Acesse **Exibir salas**.\
-2.  Escolha a sala desejada.\
-3.  Clique em **Selecionar**.\
-4.  Preencha o formulário.\
-5.  Clique em **Salvar reserva**.
-
-### 4.4 Como Cadastrar Sala ou Usuário (Administradores)
-
-1.  Vá para **Cadastro**.\
-2.  Escolha **Cadastrar sala** ou **Cadastrar usuário**.\
-3.  Preencha o formulário.
-4.  Clique em **Salvar**.
-
-------------------------------------------------------------------------
-
-## 5. Erros Comuns e Soluções
-
-### Senha incorreta
-
-**Solução:** Redefina a senha pela opção "Esqueci a senha".
-
-### Campos obrigatórios faltando
-
-**Solução:** Preencha todos os campos marcados com \*.
-
-------------------------------------------------------------------------
-
-## 6. Contato
-
-Em caso de dúvidas, contate a equipe de TI da instituição.
+---
+*Documento confidencial e de uso interno da Unieuro.*
