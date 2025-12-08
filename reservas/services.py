@@ -3,7 +3,7 @@ from reservas.models import HorarioOcupado
 
 def validar_conflito(sala_id, turma_id, data_ini, data_fim, listar_dias, listar_periodos, ignorar_reserva_id=None):
 
-    conflito = HorarioOcupado.objects.filter(
+    query = HorarioOcupado.objects.filter(
         # Procura reservas ativas
         reserva_sala__status_reserva=True,
         reserva_sala__is_deleted=False,
@@ -19,7 +19,7 @@ def validar_conflito(sala_id, turma_id, data_ini, data_fim, listar_dias, listar_
     ).filter(
         Q(reserva_sala__id_sala_id=sala_id) |
         Q(reserva_sala__id_reserva__id_turma_id=turma_id)
-    ).select_related('reserva_sala__id_reserva', 'reserva_sala__id_sala').first()
+    )
 
     if ignorar_reserva_id:
         query = query.exclude(reserva_sala__id_reserva__id=ignorar_reserva_id)

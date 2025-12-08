@@ -16,7 +16,7 @@ Gerenciar o cadastro e as informações físicas das salas de aula da instituiç
     - Possui pódio (Sim/Não)
   - Cadastro restrito ao setor NTI.
 
-- [ ] **Gerenciamento de Salas**
+- [x] **Gerenciamento de Salas**
   - Editar, remover e listar salas.
   - Filtrar por bloco, capacidade e turno.
   - Indicar se a sala está:
@@ -25,7 +25,7 @@ Gerenciar o cadastro e as informações físicas das salas de aula da instituiç
     - Em manutenção
 OBS: Já é possível usando o sistema do Django Admin
 
-- [ ] **Visualização**
+- [x] **Visualização**
   - Exibir todas as salas em tabela.
   - Mostrar detalhes da sala ao clicar.
 
@@ -36,7 +36,7 @@ OBS: Já é possível usando o sistema do Django Admin
 - [x] Criar modelo `Sala` com os campos acima.
 - [x] Adicionar relacionamento com `Reserva`.
 - [x] Implementar CRUD completo no Django Admin.
-- [ ] Criar views e templates:
+- [x] Criar views e templates:
   - Listagem (tabela com filtros)
   - Detalhes da sala
   - Cadastro (restrito ao NTI)
@@ -56,7 +56,7 @@ Relacionamentos:
 
 ## 📊 Critérios de Sucesso
 - [x] Somente NTI pode cadastrar/editar salas.
-- [ ] Listagem e filtro de salas funcionando.
-- [ ] Integração com sistema de reservas ativa.
+- [x] Listagem e filtro de salas funcionando.
+- [x] Integração com sistema de reservas ativa.
 - [ ] Status visual (disponível/reservada/manutenção).
 
