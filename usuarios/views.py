@@ -1,38 +1,23 @@
+from datetime import datetime
 import random
+from django.utils import timezone
 from django.shortcuts import render, redirect
 from django.contrib.auth import login, logout, authenticate
 from django.views import View
 from django.views.generic import UpdateView
 from django.contrib import messages
 from django.http import HttpRequest, HttpResponse
-from django.contrib.auth.mixins import LoginRequiredMixin#, PermissionRequiredMixin
-#from .forms import ValidacaoUsuario
+from django.contrib.auth.mixins import LoginRequiredMixin
 from ._forms import EditarUsuario
 from .models import Usuario
 from django.urls import reverse_lazy
 from django.core.mail import send_mail
 from django.contrib.auth.forms import SetPasswordForm
+from django.conf import settings
 
 # Create your views here.
 
 # As views serao criadas seguindo o modelo CBVs
-
-
-# CBV para criacao de usuario
-# class CriarUsuario(LoginRequiredMixin, PermissionRequiredMixin, View):
-#     permission_required = 'usuarios.add_usuario'
-#     def get(self, request: HttpRequest) -> HttpResponse:
-#         form = ValidacaoUsuario()
-#         return render(request, "usuarios/registrar.html", {"form": form})
-
-#     def post(self, request: HttpRequest) -> HttpResponse:
-#         form = ValidacaoUsuario(request.POST)
-#         if form.is_valid():
-#             form.save()
-#             messages.success(request, "Registro realizado com sucesso!")
-#             return redirect("home")
-#         return render(request, "usuarios/registrar.html", {"form": form})
-
 
 # CBV para login de usuario passando matricula e senha
 class LoginUsuario(View):
@@ -87,10 +72,11 @@ class EnviarEmail(View):
         if usuario:
             codigo = random.randint(100000, 999999)
             request.session["codigo"] = codigo
+            request.session["codigo_generated_at"] = timezone.now().isoformat()
             send_mail(
                 "Troca de senha",
                 f"Este e o codigo para trocar de senha {codigo}",
-                "reservasalas@gmail.com",
+                settings.EMAIL_HOST_USER,
                 [email],
                 fail_silently=False,
             )
@@ -104,24 +90,49 @@ class ConfirmacaoCodigo(View):
     def post(self, request: HttpRequest) -> HttpResponse:
         usuario_codigo = request.POST.get("usuario_codigo")
         codigo = request.session.get("codigo")
+        tentativas = request.session.get("tentativas_codigo", 0) + 1
+        request.session["tentativas_codigo"] = tentativas
 
+        generated_at_iso = request.session.get("codigo_generated_at")
+        if generated_at_iso:
+            try:
+                generated_at = datetime.fromisoformat(generated_at_iso)
+                
+                if timezone.is_aware(generated_at):
+                    agora = timezone.now()
+                else:
+                    agora = datetime.now()
+
+                if agora - generated_at > timezone.timedelta(minutes=10):
+                    self.limpar_sessao_codigo(request)
+                    messages.error(request, "Código expirado, solicite novamente")
+                    return redirect("enviar_email")
+            except Exception as e:
+                # Se der erro no parse da data, invalida por segurança
+                self.limpar_sessao_codigo(request)
+                messages.error(request, "Erro na validação, solicite novamente")
+                return redirect("enviar_email")
+
+        # 2. Verifica Limite de Tentativas
+        if tentativas >= 5:
+            self.limpar_sessao_codigo(request)
+            messages.error(request, "Número de tentativas excedido")
+            return redirect("enviaremail")
+
+        # 3. Verifica se o Código bate
         if str(codigo) == str(usuario_codigo):
-            request.session.pop("codigo", None)
-            request.session.pop("tentativas_codigo", None)
+            self.limpar_sessao_codigo(request)
             request.session["codigo_verificado"] = True
             return redirect("novasenha")
 
-        tentativas = request.session.get("tentativas_codigo", 0) + 1
-        request.session["tentativas_codigo"] = tentativas
-        if tentativas >= 5:
-            request.session.pop("codigo", None)
-            request.session.pop("tentativas_codigo", None)
-            messages.error(request, "Numero de tentativas excedido")
-            return redirect("enviar_email")
-
-        messages.error(request, "Codigo incorreto, tente novamente")
+        messages.error(request, "Código incorreto, tente novamente")
         return render(request, "usuarios/codigo.html")
-
+    
+    def limpar_sessao_codigo(self, request):
+        """Helper para limpar dados sensíveis da sessão"""
+        request.session.pop("codigo", None)
+        request.session.pop("codigo_generated_at", None)
+        request.session.pop("tentativas_codigo", None)
 
 class NovaSenha(View):
     def get(self, request: HttpRequest) -> HttpResponse:

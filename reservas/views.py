@@ -79,6 +79,7 @@ class ReservarSala(LoginRequiredMixin, PermissionRequiredMixin, View):
                 turma_id=dados['id_turma'],
                 data_ini=dados['data_inicial'],
                 data_fim=dados['data_final'],
+                turno=dados['turno'],
                 listar_dias=dias_ids,
                 listar_periodos=periodos_ids
             )
@@ -174,7 +175,7 @@ class EditarReserva(LoginRequiredMixin, PermissionRequiredMixin, View):
             'bloco': reserva_sala.id_sala.id_bloco,
             'cursos': Curso.objects.all(),
             'turmas': Turma.objects.all(),
-            'edicao': True # Flag para mudar título no template se quiser
+            'edicao': True 
         }
         return render(request, "reservas/reservarsala.html", context)
     
@@ -213,6 +214,7 @@ class EditarReserva(LoginRequiredMixin, PermissionRequiredMixin, View):
                 data_fim=dados['data_final'],
                 listar_dias=dias_ids,
                 listar_periodos=periodos_ids,
+                turno=dados['turno'],
                 ignorar_reserva_id=reserva.id
             )
 

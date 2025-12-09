@@ -1,7 +1,7 @@
 from django.db.models import Q
 from reservas.models import HorarioOcupado
 
-def validar_conflito(sala_id, turma_id, data_ini, data_fim, listar_dias, listar_periodos, ignorar_reserva_id=None):
+def validar_conflito(sala_id, turma_id, data_ini, data_fim, listar_dias, listar_periodos, turno, ignorar_reserva_id=None):
 
     query = HorarioOcupado.objects.filter(
         # Procura reservas ativas
@@ -16,6 +16,7 @@ def validar_conflito(sala_id, turma_id, data_ini, data_fim, listar_dias, listar_
         # Procura reservas no msm dia / periodo
         dia_semana__in=listar_dias,
         periodo__in=listar_periodos,
+        reserva_sala__turno =turno,
     ).filter(
         Q(reserva_sala__id_sala_id=sala_id) |
         Q(reserva_sala__id_reserva__id_turma_id=turma_id)

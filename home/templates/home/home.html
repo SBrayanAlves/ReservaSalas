@@ -7,6 +7,7 @@
 <div class="max-w-7xl mx-auto bg-white min-h-screen p-6">
     <h3 class="text-2xl font-bold text-gray-800 mb-6">Dashboard</h3>
 
+    <!-- Filtros -->
     <form method="GET">
     <div class="bg-white rounded-lg shadow-sm p-6 mb-6 border border-gray-200">
         <h6 class="font-bold text-blue-600 mb-4">Filtros</h6>
@@ -38,11 +39,11 @@
 
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-2">Curso</label>
-                <select name='numero' class="w-full border border-gray-300 rounded-lg p-2 text-sm">
+                <select name='curso' class="w-full border border-gray-300 rounded-lg p-2 text-sm">
                     <option value="">Todas</option>
-                    {% for numero in numeros_salas %}
-                        <option value="{{ numero }}" {% if request.GET.numero == numero|stringformat:"s" %}selected{% endif %}>
-                            {{ numero }}
+                    {% for curso in cursos %}
+                        <option value="{{ curso }}" {% if request.GET.curso == curso.nome_curso|stringformat:"s" %}selected{% endif %}>
+                            {{ curso.nome_curso }}
                         </option>
                     {% endfor %}
                 </select>
@@ -50,23 +51,21 @@
 
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-2">Data Inicial</label>
-                <select name='capacidade' class="w-full border border-gray-300 rounded-lg p-2 text-sm">
-                    <option value="">Todas</option>
-                   {% for capacidade in capacidades %}
-                        <option value="{{ capacidade }}" {% if request.GET.capacidade == capacidade|stringformat:"s" %}selected{% endif %}>
-                            {{ capacidade }}
-                        </option>
-                    {% endfor %}
-                </select>
+                <input 
+                    type="date" 
+                    name="data_inicial"
+                    value="{{ request.GET.data_inicial }}"
+                    class="w-full bg-gray-200 border border-gray-300 rounded-lg p-2 text-sm"
+                >
             </div>
 
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-2">Capacidade</label>
-                <select name='tv' class="w-full border border-gray-300 rounded-lg p-2 text-sm">
+                <select name='capacidade' class="w-full border border-gray-300 rounded-lg p-2 text-sm">
                     <option value="">Todas</option>
-                    {% for item in tvs %}
-                        <option value="{{ item.value }}" {% if request.GET.tv == item.value %}selected{% endif %}>
-                            {{ item.label }}
+                    {% for capacidade in capacidades %}
+                        <option value="{{ capacidade }}" {% if request.GET.capacidade == capacidade|stringformat:"s" %}selected{% endif %}>
+                            {{ capacidade }}
                         </option>
                     {% endfor %}
                 </select>
@@ -125,7 +124,7 @@
                             </div>
                         </td>
 
-                        <td class="px-6 py-4">{{ item.id_sala.andar|default:"-" }}º Andar</td>
+                        <td class="px-6 py-4">{{ item.id_sala.andar|default:"-" }}</td>
 
                         <td class="px-6 py-4">
                             <p class="font-semibold text-gray-800">{{ item.id_reserva.id_curso.nome_curso|default:"-" }}</p>

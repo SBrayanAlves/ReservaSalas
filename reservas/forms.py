@@ -64,8 +64,8 @@ class VerificacaoReserva(forms.Form):
 
         # 3. Validação de Capacidade e Turno
         if sala and turma:
-            cap_sala = getattr(sala, 'capacidade', 0)
-            qtd_alunos = getattr(turma, 'quantidade_alunos', 0)
+            cap_sala = sala.capacidade
+            qtd_alunos = turma.quantidade_aluno
 
             # Capacidade
             if qtd_alunos > cap_sala:
