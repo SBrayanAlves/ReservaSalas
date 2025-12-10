@@ -1,0 +1,1 @@
+web: gunicorn Reserva_Salas.wsgi --log-file -

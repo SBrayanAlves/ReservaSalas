@@ -7,6 +7,8 @@ from reservas.models import Reserva, ReservaSala
 from salas.forms import ValidacaoSala
 from usuarios.forms import ValidacaoUsuario
 from django.utils import timezone
+from django.core.paginator import Paginator
+
 # Create your views here.
 
 # DashBoard Principal deve ser responsavel pela passagens da salas reservadas!
@@ -15,8 +17,13 @@ class Home(LoginRequiredMixin, View):
 
     def get(self, request: HttpRequest) -> HttpResponse:
         reservas = self.get_filtered_queryset(request)
+
+        paginator = Paginator(reservas, 20)
+        page_number = request.GET.get('page')
+        page_obj = paginator.get_page(page_number)
+        
         context = self.get_context_data()
-        context['reservas'] = reservas
+        context['page_obj'] = page_obj
         context['filtros_at'] = request.GET 
 
         return render(request, 'home/home.html', context)
@@ -60,7 +67,6 @@ class Home(LoginRequiredMixin, View):
         return qs
 
     def get_context_data(self):
-        """Prepara os dados para preencher os Dropdowns do filtro"""
         return {
             "blocos": Bloco.objects.filter(ativo=True).order_by("bloco"),
             "andares": Sala.objects.values_list("andar", flat=True).distinct().order_by('andar'),

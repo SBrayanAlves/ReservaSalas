@@ -8,9 +8,10 @@ class ListarSalas(LoginRequiredMixin, ListView):
     model = Sala
     template_name = "salas/listarsalas.html"
     context_object_name = 'salas'
+    paginate_by = 20
 
     def get_queryset(self):
-        qs = Sala.objects.filter(is_deleted=False).select_related('id_bloco')
+        qs = Sala.objects.filter(is_deleted=False).select_related('id_bloco').order_by('id_bloco__bloco', 'andar', 'numero_sala')
 
         bloco = self.request.GET.get('bloco')
         andar = self.request.GET.get('andar')

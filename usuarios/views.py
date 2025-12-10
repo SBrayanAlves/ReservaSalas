@@ -1,5 +1,5 @@
 from datetime import datetime
-import random
+import secrets
 from django.utils import timezone
 from django.shortcuts import render, redirect
 from django.contrib.auth import login, logout, authenticate
@@ -70,7 +70,7 @@ class EnviarEmail(View):
             usuario = None
 
         if usuario:
-            codigo = random.randint(100000, 999999)
+            codigo = secrets.randbelow(10**6)
             request.session["codigo"] = codigo
             request.session["codigo_generated_at"] = timezone.now().isoformat()
             send_mail(
@@ -108,7 +108,6 @@ class ConfirmacaoCodigo(View):
                     messages.error(request, "Código expirado, solicite novamente")
                     return redirect("enviar_email")
             except Exception as e:
-                # Se der erro no parse da data, invalida por segurança
                 self.limpar_sessao_codigo(request)
                 messages.error(request, "Erro na validação, solicite novamente")
                 return redirect("enviar_email")
