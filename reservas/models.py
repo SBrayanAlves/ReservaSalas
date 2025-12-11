@@ -30,7 +30,7 @@ class ReservaSala(models.Model):
     ]
 
     id_reserva = models.ForeignKey(Reserva, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name='Reserva')
-    id_sala = models.ForeignKey(Sala, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name='Sala')
+    id_sala = models.ForeignKey(Sala, on_delete=models.PROTECT, blank=True, null=True, verbose_name='Sala')
     turno = models.CharField(max_length=15, choices=TURNOS)
     responsavel = models.CharField(max_length=255, verbose_name='Responsável')
     descricao_reserva = models.TextField(verbose_name='Descrição da reserva')
