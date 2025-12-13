@@ -9,6 +9,7 @@ from .models import Reserva, ReservaSala, HorarioOcupado
 from .forms import VerificacaoReserva
 from django.db import transaction
 from .services import validar_conflito
+from .relatorios import PDFMapaSalas
 
 class ReservarSala(LoginRequiredMixin, PermissionRequiredMixin, View):
     permission_required = 'reservas.add_reserva'
@@ -266,8 +267,19 @@ class EditarReserva(LoginRequiredMixin, PermissionRequiredMixin, View):
         return render(request, 'reservas/reservarsala.html', context)
 
     
-class Relatorio(LoginRequiredMixin, PermissionRequiredMixin ,View):
-    permission_required = 'reservas.add'
+class Relatorio(LoginRequiredMixin, PermissionRequiredMixin, View):
+    # Defina quem pode acessar. Ex: apenas quem pode adicionar reservas ou um cargo específico
+    permission_required = 'reservas.add_reserva' 
 
-    def get(self, request:HttpRequest)->HttpResponse:
-        return render(request, 'formulario.html')
+    def get(self, request: HttpRequest) -> HttpResponse:
+        # Instancia nossa classe geradora
+        relatorio = PDFMapaSalas()
+        pdf_content = relatorio.gerar_pdf()
+
+        # Cria a resposta HTTP com o cabeçalho correto para PDF
+        response = HttpResponse(content_type='application/pdf')
+        # 'inline' abre no navegador, 'attachment' força o download
+        response['Content-Disposition'] = 'inline; filename="mapa_de_salas.pdf"'
+        
+        response.write(pdf_content)
+        return response
