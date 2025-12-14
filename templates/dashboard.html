@@ -77,6 +77,15 @@
                 <span>Perfil</span>
             </a>
           </li>
+
+          {% if user.cargo == "Diretor" or user.cargo == "Assessora Administrativa" or user.cargo == "Núcleo de Tecnologia e Informação" %}
+            <li>
+              <a href="{% url "fechamento_semestre" %}" class="flex items-center space-x-3 p-3 rounded-lg text-gray-700 hover:bg-gray-100">
+                <i class="fas fa-chart-bar w-5 text-center"></i>
+                <span>Relatório</span>
+              </a>
+            </li>
+            {% endif %}
           
           {% if user.cargo == "Diretor" or user.cargo == "Assessora Administrativa" or user.cargo == "Núcleo de Tecnologia e Informação" %}
           <li>
@@ -147,6 +156,16 @@
                 <span>Perfil</span>
               </a>
             </li>
+
+            {% if user.cargo == "Diretor" or user.cargo == "Assessora Administrativa" or user.cargo == "Núcleo de Tecnologia e Informação" %}
+            <li>
+              <a href="{% url "fechamento_semestre" %}" class="flex items-center space-x-3 p-3 rounded-lg text-gray-700 hover:bg-gray-100">
+                <i class="fas fa-chart-bar w-5 text-center"></i>
+                <span>Relatório</span>
+              </a>
+            </li>
+            {% endif %}
+
             {% if user.cargo == "Diretor" or user.cargo == "Assessora Administrativa" or user.cargo == "Núcleo de Tecnologia e Informação" %}
             <li>
               <a href="{% url "admin:index" %}" class="flex items-center space-x-3 p-3 rounded-lg text-gray-700 hover:bg-gray-100">

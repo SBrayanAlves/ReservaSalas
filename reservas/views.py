@@ -10,6 +10,9 @@ from .forms import VerificacaoReserva
 from django.db import transaction
 from .services import validar_conflito
 from .relatorios import PDFMapaSalas
+from django.utils import timezone
+from django.core.management import call_command
+from io import StringIO
 
 class ReservarSala(LoginRequiredMixin, PermissionRequiredMixin, View):
     permission_required = 'reservas.add_reserva'
@@ -265,20 +268,111 @@ class EditarReserva(LoginRequiredMixin, PermissionRequiredMixin, View):
             'edicao': True
         }
         return render(request, 'reservas/reservarsala.html', context)
+    
+class FechamentoSemestre(LoginRequiredMixin, PermissionRequiredMixin, View):
+    permission_required = 'reservas.delete_reserva' 
+
+    def get_semestre_info(self):
+        hoje = timezone.now().date()
+        mes = hoje.month
+        ano = hoje.year
+
+        if 1 <= mes <= 7:
+            semestre_label = f"1º Semestre de {ano}"
+            data_inicio = f"{ano}-01-01"
+            data_fim = f"{ano}-07-30"
+        else:
+            semestre_label = f"2º Semestre de {ano}"
+            data_inicio = f"{ano}-08-01"
+            data_fim = f"{ano}-12-31"
+
+        reservas_count = Reserva.objects.filter(
+            is_deleted=False,
+            data_inicial__gte=data_inicio,
+            data_inicial__lte=data_fim
+        ).count()
+
+        return {
+            'label': semestre_label,
+            'count': reservas_count,
+            'ano': ano,
+            'semestre_num': 1 if mes <= 7 else 2
+        }
+
+    def get(self, request: HttpRequest) -> HttpResponse:
+        context = self.get_semestre_info()
+        return render(request, 'reservas/fechamento_semestre.html', context)
+
+    def post(self, request: HttpRequest) -> HttpResponse:
+        acao = request.POST.get('acao')
+
+        if acao == 'baixar_pdf':
+            # Gera o PDF
+            relatorio = PDFMapaSalas()
+            pdf_content = relatorio.gerar_pdf()
+            
+            response = HttpResponse(content_type='application/pdf')
+            filename = f"Mapa_Salas_{timezone.now().strftime('%Y_%m')}.pdf"
+            response['Content-Disposition'] = f'attachment; filename="{filename}"'
+            response.write(pdf_content)
+            return response
+
+        elif acao == 'limpar_banco':
+            confirmacao = request.POST.get('confirmacao_seguranca')
+            
+            if confirmacao != 'SIM':
+                messages.error(request, "Você deve confirmar a caixa de seleção para prosseguir.")
+                return redirect('fechamento_semestre')
+
+            try:
+                # 1. ARQUIVAR O SEMESTRE ATUAL (Soft Delete)
+                reservas_afetadas = Reserva.objects.filter(is_deleted=False)
+                count_arquivadas = reservas_afetadas.count()
+                
+                reservas_afetadas.update(is_deleted=True, deleted_at=timezone.now())
+                ReservaSala.objects.filter(is_deleted=False).update(is_deleted=True, deleted_at=timezone.now())
+
+                # 2. LIMPEZA PROFUNDA (> 1 ANO) - Chama o comando
+                out = StringIO()
+                call_command('limpar_reservas_antigas', stdout=out)
+                msg_limpeza = out.getvalue().strip()
+
+                messages.success(request, f"Semestre encerrado! {count_arquivadas} reservas foram arquivadas.")
+                messages.info(request, f"Manutenção automática: {msg_limpeza}")
+                
+                return redirect('home')
+
+            except Exception as e:
+                messages.error(request, f"Erro crítico ao processar: {e}")
+                return redirect('fechamento_semestre')
+        
+        elif acao == 'limpar_historico_antigo':
+            out = StringIO()
+            try:
+                call_command('limpar_historico', stdout=out)
+                resultado = out.getvalue()
+                
+                if "Nenhuma reserva" in resultado:
+                    messages.info(request, "O sistema verificou e não há dados antigos (mais de 1 ano) para excluir.")
+                else:
+                    messages.success(request, f"Manutenção concluída: {resultado}")
+                    
+            except Exception as e:
+                messages.error(request, f"Erro ao executar limpeza: {e}")
+            
+            return redirect('fechamento_semestre')
+        
+        return redirect('fechamento_semestre')
 
     
 class Relatorio(LoginRequiredMixin, PermissionRequiredMixin, View):
-    # Defina quem pode acessar. Ex: apenas quem pode adicionar reservas ou um cargo específico
     permission_required = 'reservas.add_reserva' 
 
     def get(self, request: HttpRequest) -> HttpResponse:
-        # Instancia nossa classe geradora
         relatorio = PDFMapaSalas()
         pdf_content = relatorio.gerar_pdf()
 
-        # Cria a resposta HTTP com o cabeçalho correto para PDF
         response = HttpResponse(content_type='application/pdf')
-        # 'inline' abre no navegador, 'attachment' força o download
         response['Content-Disposition'] = 'inline; filename="mapa_de_salas.pdf"'
         
         response.write(pdf_content)

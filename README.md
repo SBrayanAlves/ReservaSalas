@@ -11,25 +11,25 @@ O sistema tem como objetivo **automatizar a reserva e distribuição de salas de
 ---
 
 ## ✅ Requisitos Funcionais
-- [ ] **Cadastro e Gerenciamento de Salas**
+- [x] **Cadastro e Gerenciamento de Salas**
   - Bloco, número, capacidade, TV, pódio.
   - Apenas o NTI pode cadastrar/editar.
-- [ ] **Cadastro de Turmas**
+- [x] **Cadastro de Turmas**
   - Nome/código da turma.
   - Suporte a turmas mistas.
-- [ ] **Cadastro de Usuários**
+- [x] **Cadastro de Usuários**
   - Nome, matrícula, e-mail, telefone, data de nascimento, sexo, cargo.
-- [ ] **Permissões de Acesso**
+- [x] **Permissões de Acesso**
   - Visualização → Coordenação, secretarias, manutenção.
   - Moderado → NTI (salas e turmas).
   - Total → Tatiana e Diretor.
-- [ ] **Reserva de Salas**
+- [x] **Reserva de Salas**
   - Até **4 períodos por turno** (manhã/tarde/noite).
   - Impedir conflitos por sala/turno/período.
-- [ ] **Relatórios**
-  - Mensal, semestral e personalizado.
+- [x] **Relatórios**
+  - Semestral
   - Por curso, bloco, sala ou período.
-- [ ] **Visualização**
+- [x] **Visualização**
   - Principal em **tabela** (não cards).
   - Filtros: bloco, sala, curso, turno, período.
   - Detalhes ao clicar em uma sala.
@@ -37,34 +37,34 @@ O sistema tem como objetivo **automatizar a reserva e distribuição de salas de
 ---
 
 ## 🔒 Requisitos Não Funcionais
-- [ ] **Plataforma**
+- [x] **Plataforma**
   - 100% web, responsivo, acessível de qualquer lugar.
-- [ ] **Usabilidade**
+- [x] **Usabilidade**
   - Interface simples e intuitiva.
   - Pouca digitação para evitar erros.
-- [ ] **Banco de Dados**
+- [x] **Banco de Dados**
   - Atualização de turmas/códigos a cada semestre.
   - Edição e inclusão simples.
-- [ ] **Segurança**
+- [x] **Segurança**
   - Controle de acesso baseado em perfis.
   - Senhas criptografadas no banco.
 
 ---
 
 ## 📊 Critérios de Sucesso
-- [ ] Processo de distribuição automatizado.
-- [ ] Interface intuitiva para reservas.
-- [ ] Relatórios gerados para apoio institucional.
-- [ ] Flexibilidade para ajustes e alterações.
-- [ ] Disponibilidade de salas visível por período (manhã/tarde/noite).
+- [x] Processo de distribuição automatizado.
+- [x] Interface intuitiva para reservas.
+- [x] Relatórios gerados para apoio institucional.
+- [x] Flexibilidade para ajustes e alterações.
+- [x] Disponibilidade de salas visível por período (manhã/tarde/noite).
 
 ---
 
 ## 📅 Próximos Passos
-- [ ] Analisar planilhas atuais da assessoria.
-- [ ] Desenvolver cadastro de salas e turmas.
-- [ ] Criar interface de calendário e reservas.
-- [ ] Implementar relatórios visuais (PDF/Exportação).
+- [x] Analisar planilhas atuais da assessoria.
+- [x] Desenvolver cadastro de salas e turmas.
+- [x] Criar interface de calendário e reservas.
+- [x] Implementar relatórios visuais (PDF/Exportação).
 
 ---
 
