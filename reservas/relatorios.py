@@ -4,6 +4,7 @@ from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, 
 from reportlab.lib.styles import getSampleStyleSheet
 from reportlab.lib.units import cm
 from io import BytesIO
+from django.db.models import Prefetch  # Importação necessária
 from salas.models import Bloco, Sala
 from reservas.models import ReservaSala
 
@@ -31,8 +32,6 @@ class PDFMapaSalas:
             
         lista_dias_idxs.sort()
         
-        # Verifica se são consecutivos (para usar "A")
-        # Exige pelo menos 3 dias para usar o "A" (ex: TER A QUI)
         if len(lista_dias_idxs) >= 3:
             consecutivos = True
             for i in range(len(lista_dias_idxs) - 1):
@@ -43,84 +42,53 @@ class PDFMapaSalas:
             if consecutivos:
                 return f"{mapa_dias[lista_dias_idxs[0]]} A {mapa_dias[lista_dias_idxs[-1]]}"
 
-        # Se não forem consecutivos ou forem poucos, lista com vírgula
         return ", ".join([mapa_dias[d] for d in lista_dias_idxs])
 
     def _formatar_frequencia(self, reserva_sala):
-        """
-        Gera a string ex: 'TER A SEX' ou 'TER 2ºH'
-        """
-        # Busca os horários ordenados
         horarios = reserva_sala.horarios.all().order_by('dia_semana', 'periodo')
         
         if not horarios.exists():
             return ""
 
-        # 1. Agrupa períodos por dia
-        # Ex: {1: {1,2,3,4}} -> Terça Integral
         dias_periodos = {}
         for h in horarios:
             dias_periodos.setdefault(h.dia_semana, set()).add(h.periodo)
 
-        # 2. Inverte para agrupar dias com os mesmos períodos
-        # Ex: { (1,2,3,4): [1, 2, 3, 4] } -> Terça a Sexta têm todos os horários
         periodos_para_dias = {}
         for dia, periodos_set in dias_periodos.items():
-            # frozenset permite usar o conjunto como chave de dicionário
             chave_periodos = frozenset(periodos_set)
             periodos_para_dias.setdefault(chave_periodos, []).append(dia)
 
         linhas = []
         for periodos_set, lista_dias in periodos_para_dias.items():
-            # Formata os dias (ex: "TER A SEX")
             texto_dias = self._criar_intervalo_dias(lista_dias)
             
-            # Verifica se é o turno todo (1, 2, 3, 4) ou parcial
             if {1, 2, 3, 4}.issubset(periodos_set):
-                # Se for integral, mostra só os dias
                 linhas.append(texto_dias)
             else:
-                # Se for parcial, mostra os dias + períodos (Ex: "TER 2ºH")
                 lista_p = sorted(list(periodos_set))
                 texto_p = ",".join([f"{p}ºH" for p in lista_p])
                 linhas.append(f"{texto_dias} {texto_p}")
 
         return "\n".join(linhas)
 
-    def _get_reserva_info(self, sala, turno):
-        # Adicionei 'prefetch_related' para carregar os horários de forma eficiente
-        reservas = ReservaSala.objects.filter(
-            id_sala=sala,
-            turno=turno,
-            status_reserva=True,
-            is_deleted=False
-        ).select_related('id_reserva', 'id_reserva__id_turma').prefetch_related('horarios')
-
-        if not reservas.exists():
+    def _montar_texto_celula(self, reservas_lista):
+        if not reservas_lista:
             return "LIVRE"
         
         textos = []
-        for r in reservas:
-            turma = r.id_reserva.codigo_turma
+        for r in reservas_lista:
+            turma = r.id_reserva.codigo_turma if r.id_reserva else "Sem Turma"
             responsavel = r.responsavel
             
-            # Chama a nova função de formatação
             dias_horarios = self._formatar_frequencia(r)
             
-            # Monta o bloco de texto da célula
-            # Ex: 
-            # FAR03M1
-            # TER A SEX
-            # (Prof. Silva)
             item = f"{turma}\n{dias_horarios}\n({responsavel})"
             textos.append(item)
         
         return "\n\n".join(textos)
 
     def gerar_pdf(self):
-        # ... (O restante do método gerar_pdf permanece igual ao anterior) ...
-        # Apenas certifique-se de que está chamando self._get_reserva_info corretamente
-        
         title_style = self.styles['Heading1']
         title_style.alignment = 1
         self.elements.append(Paragraph("Mapa de Distribuição de Salas - Unieuro", title_style))
@@ -132,7 +100,15 @@ class PDFMapaSalas:
             self.elements.append(Paragraph(f"BLOCO {bloco.bloco}", self.styles['Heading2']))
             
             data = [['Sala / Andar', 'Matutino', 'Vespertino', 'Noturno', 'Capacidade', 'Recursos']]
-            salas = Sala.objects.filter(id_bloco=bloco, is_deleted=False).order_by('andar', 'numero_sala')
+            
+            salas = Sala.objects.filter(id_bloco=bloco, is_deleted=False).order_by('andar', 'numero_sala').prefetch_related(
+                Prefetch(
+                    'reservasala_set',
+                    queryset=ReservaSala.objects.filter(status_reserva=True, is_deleted=False).select_related('id_reserva'),
+                    to_attr='reservas_ativas'
+                ),
+                'reservas_ativas__horarios'
+            )
 
             if not salas.exists():
                 self.elements.append(Paragraph("Nenhuma sala cadastrada.", self.styles['Normal']))
@@ -140,9 +116,14 @@ class PDFMapaSalas:
                 continue
 
             for sala in salas:
-                matutino = self._get_reserva_info(sala, 'Matutino')
-                vespertino = self._get_reserva_info(sala, 'Vespertino')
-                noturno = self._get_reserva_info(sala, 'Noturno')
+
+                matutino_res = [r for r in sala.reservas_ativas if r.turno == 'Matutino']
+                vespertino_res = [r for r in sala.reservas_ativas if r.turno == 'Vespertino']
+                noturno_res = [r for r in sala.reservas_ativas if r.turno == 'Noturno']
+                
+                matutino_txt = self._montar_texto_celula(matutino_res)
+                vespertino_txt = self._montar_texto_celula(vespertino_res)
+                noturno_txt = self._montar_texto_celula(noturno_res)
                 
                 recursos = []
                 if sala.tv_tamanho: recursos.append(f"TV {sala.tv_tamanho}")
@@ -151,9 +132,9 @@ class PDFMapaSalas:
 
                 data.append([
                     f"{sala.numero_sala}\n({sala.andar})",
-                    matutino,
-                    vespertino,
-                    noturno,
+                    matutino_txt,
+                    vespertino_txt,
+                    noturno_txt,
                     str(sala.capacidade),
                     str_recursos
                 ])
