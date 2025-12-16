@@ -46,10 +46,13 @@ Execute os comandos na ordem abaixo:
 
 PASSO 4: RODAR O SERVIDOR DE APLICAÇÃO
 --------------------------------------
-O projeto utiliza 'waitress' como servidor WSGI (compatível com Windows e Linux).
+O projeto utiliza 'waitress' como servidor WSGI (recomendado para Windows). Para ambientes Linux, recomenda-se o uso do Gunicorn (já configurado no Procfile).
 
-Comando para iniciar (exemplo na porta 8000):
+Comando para Windows (Waitress):
 > waitress-serve --listen=*:8000 project.wsgi:application
+
+Comando para Linux (Gunicorn): 
+> gunicorn project.wsgi --log-file -
 
 Nota para TI: Recomenda-se configurar esse comando para rodar como serviço (Systemd no Linux ou Windows Service) para garantir que o sistema reinicie automaticamente caso o servidor desligue.
 

@@ -114,4 +114,3 @@ class Command(BaseCommand):
 
         self.stdout.write(self.style.SUCCESS('--- Configuração concluída ---'))
         
-        return super().handle(*args, **options)
